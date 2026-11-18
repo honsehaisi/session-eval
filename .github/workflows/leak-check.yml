@@ -1,0 +1,21 @@
+name: leak-check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: 泄漏扫描（当前树 + 全历史）
+        run: node scripts/check-public.js --history
+      - name: 单元测试
+        run: node --test --test-isolation=none tests/

@@ -1,0 +1,74 @@
+# 本机配置（不入库；换机器复制 config.sample.json 改名）
+config.json
+
+# 冻结日志快照与 A/B 对照副本（体积大，只在本地）
+_work/s2-*
+_work/sessions-freeze-*/
+_work/before/
+_work/report.before-*.json
+
+_work/config-*.json
+
+# 自检/试跑产物（示例日志、导出事件、A/B 指纹）
+_work/demo-sessions/
+_work/events.jsonl
+_work/ab-*.json
+_work/gen-rules.js
+_work/matcher-old.js
+_work/s3-after-*
+
+# 运行产物备份
+src/tasks/reconcile.json
+report.json.bak-*
+_work/report.after-*.json
+_work/sess-*.json
+_work/baseline-hashes.json
+
+# 打包中间件与大产物（S6）
+dist/
+app/node_modules/
+app/eval/
+app/_work/
+app/_test/
+_tmp/
+_work/
+
+app/build-id.json
+
+# ===== 安全层（本机，不入库/不公开） =====
+internal/
+rules/safety.local.json
+
+# 本机证据与运行产物（跑时会重算；外发包不带）
+sess.json
+report.json
+report/report.html
+src/**/report.json
+src/cost/sess.json
+src/honesty/*.json
+src/safety/sessions.json
+src/safety/a2.json
+src/safety/sample.json
+src/safety/c7-hits.json
+src/safety/seq.json
+src/safety/报告-安全维度v1.md
+src/memory/questions.json
+src/memory/answers.json
+src/memory/report.json
+src/memory/report-offline.json
+src/memory/verdict-overrides.json
+src/consistency/answers-t0b.json
+src/consistency/t0b-plan.json
+src/consistency/t1-plan.json
+src/consistency/snapshots.json
+src/tasks/reconcile.json
+
+# 开发计划/实测/交接（内部资料，只存保险箱）
+docs/计划*
+docs/实测*
+docs/审查报告*
+docs/UI改造清单.md
+docs/开工单-UI改造.md
+docs/桌面版-使用与打包.md
+docs/记忆复测*
+app/_mkicon*.py

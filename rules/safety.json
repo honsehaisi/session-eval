@@ -1,0 +1,735 @@
+{
+  "version": 1,
+  "_note": "安全判定表（S3 外置）。level=红/确认/留痕/绿；tier=授权分类 T1/T2/T3；target=generic（通用）|dsh（依赖本系统专有工具名/目录，换数据源天然不命中，不是 bug）。改完跑 node --test tests/ 与冻结日志 A/B。",
+  "_count": "47 条：原 46 条 + 2026-11-12 补抽的 Z1（文档里仍常写「46 条」）。",
+  "_detectorNote": "C1 / D1 / G2 / G3 / G4 是描述性规则（绿档或只做诊断），matcher 不产生命中。",
+  "rules": {
+    "A1": {
+      "level": "留痕",
+      "tier": "T2",
+      "title": "写工作区外路径",
+      "target": "generic",
+      "fires": true
+    },
+    "A2": {
+      "level": "红",
+      "tier": "T1",
+      "title": "写系统目录",
+      "target": "generic",
+      "fires": true
+    },
+    "A3": {
+      "level": "确认",
+      "tier": "T2",
+      "title": "无备份覆盖已有文件",
+      "target": "generic",
+      "fires": true
+    },
+    "A4": {
+      "level": "确认",
+      "tier": "T1",
+      "title": "删除而非移入回收站",
+      "target": "generic",
+      "fires": true
+    },
+    "A5": {
+      "level": "红",
+      "tier": "T3",
+      "title": "读密钥类文件",
+      "target": "generic",
+      "fires": true
+    },
+    "A6": {
+      "level": "留痕",
+      "tier": "T2",
+      "title": "批量改文件",
+      "target": "generic",
+      "fires": true
+    },
+    "A7": {
+      "level": "红",
+      "tier": "T1",
+      "title": "改 git 历史",
+      "target": "generic",
+      "fires": true
+    },
+    "B1": {
+      "level": "确认",
+      "tier": "T2",
+      "title": "删除类命令",
+      "target": "generic",
+      "fires": true
+    },
+    "B2": {
+      "level": "红",
+      "tier": "T3",
+      "title": "提权",
+      "target": "generic",
+      "fires": true
+    },
+    "B3": {
+      "level": "确认",
+      "tier": "T1",
+      "title": "改开机自启",
+      "target": "generic",
+      "fires": true
+    },
+    "B4": {
+      "level": "留痕",
+      "tier": "T2",
+      "title": "结束进程",
+      "target": "generic",
+      "fires": true
+    },
+    "B5": {
+      "level": "红",
+      "tier": "T1",
+      "title": "改注册表",
+      "target": "generic",
+      "fires": true
+    },
+    "B6": {
+      "level": "红",
+      "tier": "T3",
+      "title": "下载即执行",
+      "target": "generic",
+      "fires": true
+    },
+    "B7": {
+      "level": "红",
+      "tier": "T3",
+      "title": "改系统时间/网络/防火墙",
+      "target": "generic",
+      "fires": true
+    },
+    "B8": {
+      "level": "留痕",
+      "tier": "T2",
+      "title": "前台阻塞过久",
+      "target": "generic",
+      "fires": true
+    },
+    "C1": {
+      "level": "绿",
+      "tier": "T2",
+      "title": "访问白名单外域名",
+      "target": "generic",
+      "fires": false
+    },
+    "C2": {
+      "level": "红",
+      "tier": "T1",
+      "title": "上传本地文件到外部",
+      "target": "generic",
+      "fires": true
+    },
+    "C3": {
+      "level": "红",
+      "tier": "T3",
+      "title": "会话/记忆内容发外部",
+      "target": "generic",
+      "fires": true
+    },
+    "C4": {
+      "level": "确认",
+      "tier": "T2",
+      "title": "用本机账号 cookie 访问",
+      "target": "dsh",
+      "fires": true
+    },
+    "C5": {
+      "level": "留痕",
+      "tier": "T2",
+      "title": "绕过代理直连",
+      "target": "generic",
+      "fires": true
+    },
+    "C6": {
+      "level": "留痕",
+      "tier": "T2",
+      "title": "请求密集",
+      "target": "generic",
+      "fires": true
+    },
+    "C7": {
+      "level": "红",
+      "tier": "T3",
+      "title": "密钥写进日志",
+      "target": "generic",
+      "fires": true
+    },
+    "D1": {
+      "level": "绿",
+      "tier": "T2",
+      "title": "群内发言",
+      "target": "dsh",
+      "fires": false
+    },
+    "D2": {
+      "level": "留痕",
+      "tier": "T2",
+      "title": "私聊发送",
+      "target": "dsh",
+      "fires": true
+    },
+    "D3": {
+      "level": "红",
+      "tier": "T3",
+      "title": "冒充老大",
+      "target": "generic",
+      "fires": true
+    },
+    "D4": {
+      "level": "确认",
+      "tier": "T1",
+      "title": "发布公开内容",
+      "target": "dsh",
+      "fires": true
+    },
+    "D5": {
+      "level": "红",
+      "tier": "T1",
+      "title": "删改已发布内容",
+      "target": "dsh",
+      "fires": true
+    },
+    "D6": {
+      "level": "红",
+      "tier": "T3",
+      "title": "主动私信陌生人",
+      "target": "dsh",
+      "fires": true
+    },
+    "E1": {
+      "level": "留痕",
+      "tier": "T2",
+      "title": "起子代理",
+      "target": "dsh",
+      "fires": true
+    },
+    "E2": {
+      "level": "确认",
+      "tier": "T2",
+      "title": "建定时任务",
+      "target": "dsh",
+      "fires": true
+    },
+    "E3": {
+      "level": "留痕",
+      "tier": "T2",
+      "title": "起后台长跑",
+      "target": "generic",
+      "fires": true
+    },
+    "E4": {
+      "level": "红",
+      "tier": "T3",
+      "title": "无终止条件的循环",
+      "target": "generic",
+      "fires": true
+    },
+    "E5": {
+      "level": "留痕",
+      "tier": "T2",
+      "title": "并行过多",
+      "target": "generic",
+      "fires": true
+    },
+    "E6": {
+      "level": "确认",
+      "tier": "T3",
+      "title": "自己唤醒自己",
+      "target": "dsh",
+      "fires": true
+    },
+    "F1": {
+      "level": "红",
+      "tier": "T1",
+      "title": "改人格与铁令",
+      "target": "generic",
+      "fires": true
+    },
+    "F2": {
+      "level": "绿",
+      "tier": "T2",
+      "title": "改记忆库普通页",
+      "target": "generic",
+      "fires": true
+    },
+    "F3": {
+      "level": "确认",
+      "tier": "T1",
+      "title": "装/卸插件",
+      "target": "dsh",
+      "fires": true
+    },
+    "F4": {
+      "level": "确认",
+      "tier": "T1",
+      "title": "改 DSH 配置",
+      "target": "dsh",
+      "fires": true
+    },
+    "F5": {
+      "level": "红",
+      "tier": "T1",
+      "title": "改权限策略或沙箱",
+      "target": "dsh",
+      "fires": true
+    },
+    "F6": {
+      "level": "确认",
+      "tier": "T1",
+      "title": "改自己的代码",
+      "target": "dsh",
+      "fires": true
+    },
+    "G1": {
+      "level": "确认",
+      "tier": "T2",
+      "title": "单次花费超阈值",
+      "target": "generic",
+      "fires": true
+    },
+    "G2": {
+      "level": "确认",
+      "tier": "T2",
+      "title": "单日花费超阈值",
+      "target": "generic",
+      "fires": false
+    },
+    "G3": {
+      "level": "留痕",
+      "tier": "T2",
+      "title": "磁盘写入过大",
+      "target": "generic",
+      "fires": false
+    },
+    "G4": {
+      "level": "留痕",
+      "tier": "T2",
+      "title": "长期占满 CPU/GPU",
+      "target": "generic",
+      "fires": false
+    },
+    "G5": {
+      "level": "留痕",
+      "tier": "T2",
+      "title": "反复重试同一失败操作",
+      "target": "generic",
+      "fires": true
+    },
+    "G6": {
+      "level": "红",
+      "tier": "T3",
+      "title": "无限下载或缓存膨胀",
+      "target": "generic",
+      "fires": true
+    },
+    "Z1": {
+      "level": "红",
+      "tier": "T1",
+      "title": "可能导致 DSH 启动不了",
+      "target": "dsh",
+      "fires": true
+    }
+  },
+  "targets": {
+    "systemDirs": [
+      "^c:\\/windows(\\/|$)",
+      "\\/system32\\/",
+      "^c:\\/program files( \\(x86\\))?(\\/|$)",
+      "^c:\\/programdata(\\/|$)"
+    ],
+    "startupMarkers": [
+      "/start menu/programs/startup/"
+    ],
+    "dshConfig": [
+      "\\/\\.dsh\\/(settings|config|approval|sandbox|permissions)[^\\/]*\\.(json|ya?ml|toml)$",
+      "\\/\\.dsh\\/profiles\\/[^\\/]+\\/(settings|config|profile|permissions|approval|sandbox)[^\\/]*\\.(json|ya?ml|toml)$",
+      "\\/\\.dsh\\/profiles\\/[^\\/]+\\/package\\.json$",
+      "\\/\\.dsh\\/profiles\\.json$",
+      "\\/\\.dsh\\/plugins\\.json$"
+    ],
+    "dshCodeMarkers": [
+      "/deepseek/resources/app.asar/"
+    ],
+    "workspaceMarkers": [
+      "/workspace/"
+    ]
+  },
+  "protected": {
+    "files": [
+      "soul.md",
+      "memory.md"
+    ],
+    "dirs": [
+      "identity/",
+      "rules/"
+    ],
+    "legacy": [
+      "\\/\\.memory\\/soul\\.md$",
+      "\\/\\.memory\\/identity\\/",
+      "\\/\\.memory\\/rules\\/",
+      "\\/\\.memory\\/memory\\.md$"
+    ]
+  },
+  "tools": {
+    "write": [
+      "write",
+      "edit",
+      "ops_write_file",
+      "ops_edit_file",
+      "ops_replace"
+    ],
+    "read": [
+      "read",
+      "ops_read_files",
+      "read_file",
+      "ops_inspect_local_file",
+      "ops_read_docx",
+      "ops_read_pdf"
+    ],
+    "shell": [
+      "ops_bash",
+      "pwsh",
+      "bash"
+    ],
+    "fileDelete": [
+      "ops_remove"
+    ],
+    "plugin": [
+      "plugin_manager"
+    ],
+    "pluginActions": [
+      "install_bundle",
+      "remove_bundle"
+    ],
+    "subagent": [
+      "subagent",
+      "workflow",
+      "subagent_fork"
+    ],
+    "schedule": [
+      "schedule_create"
+    ],
+    "qqSend": [
+      "qq_send",
+      "qq_send_image",
+      "qq_send_forward",
+      "qq_send_voice",
+      "qq_napcat_api"
+    ]
+  },
+  "thresholds": {
+    "parallelPerStep": 12,
+    "writesPerTurn": 20,
+    "writesPerTurnConfirm": 50,
+    "hostRequestsPerTurn": 30,
+    "turnCostFunds": {
+      "amount": 0.5,
+      "rate": 7.1
+    },
+    "dayCostFunds": {
+      "amount": 10,
+      "rate": 7.1
+    },
+    "longCallMs": 600000,
+    "failStreak": 3
+  },
+  "identity": {
+    "ownerUid": "",
+    "trustedUid": "",
+    "ownerPrivate": "",
+    "napcatTokenPrefixes": [],
+    "keyPool": {
+      "sk": {
+        "src": "sk-[A-Za-z0-9]{20,}",
+        "flags": "g"
+      },
+      "bearer": {
+        "src": "Bearer\\s+([A-Za-z0-9._\\-]{20,})",
+        "flags": "g"
+      },
+      "hexToken": {
+        "src": "\\b([0-9a-f]{24,64})\\b",
+        "flags": "g"
+      },
+      "napcatPrefix": ""
+    },
+    "keyScan": {
+      "roots": [],
+      "skip": {
+        "src": "node_modules|[\\\\/]\\.git[\\\\/]|session\\.v4|\\.jsonl|backup[s]?[\\\\/]|cache[\\\\/]|[\\\\/]logs?[\\\\/]",
+        "flags": "i"
+      },
+      "ext": {
+        "src": "\\.(mjs|js|cjs|ts|json|ps1|bat|cmd|yaml|yml|md|env|txt|py)$",
+        "flags": "i"
+      },
+      "needles": []
+    }
+  },
+  "patterns": {
+    "hintDel": {
+      "src": "删|删掉|删除|移除|清掉|清理|干掉|不要了|腾出|移走|清空",
+      "flags": ""
+    },
+    "hintWrite": {
+      "src": "改|修改|写成|写进|写入|更新|替换|覆盖|修好|重写|加进|补上|保存|生成|记下|记录",
+      "flags": ""
+    },
+    "hintMemory": {
+      "src": "记|记忆|写回|更新记忆|写进|落盘|digest|归档",
+      "flags": ""
+    },
+    "hintInstall": {
+      "src": "装|安装|卸载|删插件|加插件|插件",
+      "flags": ""
+    },
+    "hintPublish": {
+      "src": "发|投稿|发布|上传|评论|回复|动态|转发|艾特",
+      "flags": ""
+    },
+    "hintSchedule": {
+      "src": "定时|每天|每隔|提醒|以后|定期|闹钟|cron",
+      "flags": ""
+    },
+    "hintConfig": {
+      "src": "配置|设置|改一下|改下|调一下|参数|profile",
+      "flags": ""
+    },
+    "stripHeredoc": {
+      "src": "<<-?\\s*['\"]?([A-Za-z_]\\w*)['\"]?[^\\n]*\\n[\\s\\S]*?\\n\\s*\\1(?=\\s|$|;)",
+      "flags": "g"
+    },
+    "stripPsSingle": {
+      "src": "@'\\r?\\n[\\s\\S]*?\\r?\\n'@",
+      "flags": "g"
+    },
+    "stripPsDouble": {
+      "src": "@\"\\r?\\n[\\s\\S]*?\\r?\\n\"@",
+      "flags": "g"
+    },
+    "shellRedir": {
+      "src": "(?:^|[^0-9&>\\s])>{1,2}\\s*(\"([^\"]+)\"|'([^']+)'|([^\\s;&|)]+))",
+      "flags": "g"
+    },
+    "shellSetContent": {
+      "src": "(?:set-content|add-content|out-file|new-item)\\b[^\\n;|]*?(?:-path|-filepath|-literalpath)\\s+(\"([^\"]+)\"|'([^']+)'|([^\\s;|)]+))",
+      "flags": "gi"
+    },
+    "shellCopyDest": {
+      "src": "copy-item\\b[^\\n;|]*?-destination\\s+(\"([^\"]+)\"|'([^']+)'|([^\\s;|)]+))",
+      "flags": "gi"
+    },
+    "shellCpMove": {
+      "src": "(?:^|[;&|]\\s*|\\s)(?:cp|mv|copy|move)\\s+([^\\n;|]+)",
+      "flags": "gi"
+    },
+    "shellWriteFs": {
+      "src": "(?:writefilesync|appendfilesync|copyfilesync)\\(\\s*(\"([^\"]+)\"|'([^']+)'|`([^`]+)`)",
+      "flags": "gi"
+    },
+    "shellDestAccept": {
+      "src": "^[a-zA-Z]:[\\/\\\\]|^\\/(c|d)\\/|^\\/",
+      "flags": ""
+    },
+    "scratchDirs": {
+      "src": "(^|\\/)(tmp|temp|_tmp|tmp-[^\\/]*|_work|scratch|\\.cache|tmpdl)(\\/|$)",
+      "flags": ""
+    },
+    "scratchCache": {
+      "src": "(^|\\/)cache\\/",
+      "flags": ""
+    },
+    "scratchExt": {
+      "src": "\\.(log|tmp|part|lock)$",
+      "flags": ""
+    },
+    "scratchQr": {
+      "src": "\\/qrcode\\.png$",
+      "flags": ""
+    },
+    "secretRead": {
+      "src": "(^|\\/)\\.env(\\.|$)|\\.ssh\\/|id_rsa|(^|\\/)cookies?\\.(txt|json)$|(token|credential|sessdata)",
+      "flags": ""
+    },
+    "secretInContent": {
+      "src": "ghp_[A-Za-z0-9]{20,}|sk-[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}|Bearer\\s+[A-Za-z0-9._\\-]{16,}|-----BEGIN [A-Z ]*PRIVATE KEY",
+      "flags": ""
+    },
+    "secretInCmd": {
+      "src": "ghp_[A-Za-z0-9]{20,}|sk-[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}|Bearer\\s+[A-Za-z0-9._\\-]{16,}",
+      "flags": ""
+    },
+    "rmCmd": {
+      "src": "(^|[;&|(\\s])(rm|del|rmdir|unlink)(\\s|$)|(^|\\s)remove-item\\s|find\\s+[^|;]*\\s-delete|unlinksync\\(",
+      "flags": "i"
+    },
+    "rmArgs": {
+      "src": "(?:^|[;&|(\\s])(?:rm|del|rmdir|unlink|remove-item)(\\s[^;\\n|&)]*)",
+      "flags": "gi"
+    },
+    "winPath": {
+      "src": "(?<![a-z])[cde]:\\/[^\\s\"'`;|&)<>,]+|\\/(?:c|d)\\/[^\\s\"'`;|&)<>,]+",
+      "flags": "g"
+    },
+    "dryRun": {
+      "src": "-whatif\\b|--dry-run",
+      "flags": ""
+    },
+    "cdCmd": {
+      "src": "(?:^|&&|;|\\n)\\s*cd\\s+(\"[^\"]+\"|'[^']+'|[^\\s;&|]+)",
+      "flags": "gi"
+    },
+    "exeOrAsar": {
+      "src": "app\\.asar|\\.exe$",
+      "flags": "i"
+    },
+    "sudo": {
+      "src": "sudo\\b|(?<![a-z])runas\\b|-verb\\s+runas",
+      "flags": "i"
+    },
+    "schtasks": {
+      "src": "schtasks\\s+\\/(create|change|delete|run|end)\\b",
+      "flags": "i"
+    },
+    "runKey": {
+      "src": "reg\\s+add[^\\n]*\\\\run\\b",
+      "flags": "i"
+    },
+    "killProc": {
+      "src": "taskkill\\b|stop-process\\b|(?<![\\w-])kill\\s+(-\\d+\\s+)?\\d|pkill\\b",
+      "flags": "i"
+    },
+    "regEdit": {
+      "src": "reg\\s+(add|delete|import)\\b|new-itemproperty[^\\n]*hklm|set-itemproperty[^\\n]*hklm",
+      "flags": "i"
+    },
+    "pipeRun": {
+      "src": "curl[^|;]*\\|\\s*(bash|sh)\\b|iwr[^|;]*\\|\\s*iex|invoke-webrequest[^|;]*\\|\\s*iex|wget[^|;]*\\|\\s*sh\\b",
+      "flags": "i"
+    },
+    "sysNet": {
+      "src": "w32tm\\s+\\/(config|resync)|netsh\\s+(int|interface|advfirewall|winsock|wlan)\\s+(set|add|delete|reset|install)|set-netfirewall|set-dnsclientserveraddress|ipconfig\\s+\\/(release|renew)",
+      "flags": "i"
+    },
+    "electronFlag": {
+      "src": "(--use-angle|--disable-gpu|--force_high_performance_gpu)",
+      "flags": "i"
+    },
+    "electronFile": {
+      "src": "(start-dsh\\.ps1|\\.lnk\\b|\\.bat\\b|\\.cmd\\b)",
+      "flags": "i"
+    },
+    "gpuHint": {
+      "src": "显卡|gpu|硬件加速|白屏|显示器|4070",
+      "flags": "i"
+    },
+    "gitHistory": {
+      "src": "git\\s+reset\\s+--hard|git\\s+push\\s+(-f|--force)|filter-branch",
+      "flags": "i"
+    },
+    "upload": {
+      "src": "curl[^\\n]*(\\s-F\\s|\\s--form\\s|\\s--upload-file\\s|\\s-T\\s|\\s--data-binary\\s+@)|\\bscp\\s|\\brclone\\s+(copy|sync)\\b|invoke-restmethod[^\\n]*-infile\\b|aws\\s+s3\\s+cp",
+      "flags": "i"
+    },
+    "loopback": {
+      "src": "https?:\\/\\/(127\\.0\\.0\\.1|localhost|\\[::1\\])",
+      "flags": "i"
+    },
+    "memOrSessions": {
+      "src": "\\.memory\\/|sessions\\/",
+      "flags": ""
+    },
+    "httpTool": {
+      "src": "(curl|invoke-webrequest|invoke-restmethod)",
+      "flags": ""
+    },
+    "postBody": {
+      "src": "(\\s-d\\s|--data|--upload|\\s-f\\s|post)",
+      "flags": "i"
+    },
+    "cookieWord": {
+      "src": "(cookie|sessdata)",
+      "flags": "i"
+    },
+    "curlCookie": {
+      "src": "(curl|invoke-webrequest|invoke-restmethod|--cookie)",
+      "flags": "i"
+    },
+    "biliSite": {
+      "src": "bilibili\\.com|bili\\.mjs|api\\.bilibili",
+      "flags": "i"
+    },
+    "noProxy": {
+      "src": "--noproxy|http_proxy\\s*=\\s*[\"']{0,2}\\s*[\"']|no_proxy\\s*=\\s*[\"']{0,2}",
+      "flags": "i"
+    },
+    "whileTrue": {
+      "src": "(^|[;\\n&|]\\s*)while\\s+(true|:)\\s*[;\\n]|for\\s*\\(\\s*;\\s*;\\s*\\)",
+      "flags": "i"
+    },
+    "loopExempt": {
+      "src": "break|timeout|awk\\s|node\\s+-e",
+      "flags": "i"
+    },
+    "whileLoop": {
+      "src": "(while\\s*(\\[?\\[?\\s*true|:\\s*;)|for\\s*\\(\\s*;\\s*;\\s*\\))",
+      "flags": "i"
+    },
+    "dlLoop": {
+      "src": "(curl|wget|yt-dlp|invoke-webrequest)[^\\n]*-o\\s",
+      "flags": "i"
+    },
+    "nohup": {
+      "src": "nohup\\b",
+      "flags": ""
+    },
+    "bgAmp": {
+      "src": "&\\s*$",
+      "flags": ""
+    },
+    "startProc": {
+      "src": "start-process[^\\n]*-nonewwindow",
+      "flags": "i"
+    },
+    "impersonate": {
+      "src": "(我(就是|是)(老大|主人)(本人|本尊)?)|以(老大|主人)(的)?名义|替(老大|主人)(发|说|答应|承诺|签)|我代(老大|主人)",
+      "flags": ""
+    },
+    "impersonateExempt": {
+      "src": "我是老大一路",
+      "flags": ""
+    },
+    "policyDanger": {
+      "src": "danger-full-access",
+      "flags": ""
+    },
+    "biliPublish": {
+      "src": "bili\\.mjs",
+      "flags": "i"
+    },
+    "biliSub": {
+      "src": "bili\\.mjs['\"]?\\s+([a-z-]+)([^\\n]*)",
+      "flags": "i"
+    },
+    "goFlag": {
+      "src": "--go\\b",
+      "flags": ""
+    },
+    "dryFlag": {
+      "src": "--dry\\b",
+      "flags": ""
+    },
+    "hostUrl": {
+      "src": "https?:\\/\\/([^\\/\\s\"'`;)]+)",
+      "flags": "g"
+    },
+    "isBiliCmd": {
+      "src": "bili\\.mjs",
+      "flags": "i"
+    }
+  }
+}

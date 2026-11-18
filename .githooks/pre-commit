@@ -1,0 +1,6 @@
+#!/bin/sh
+# 提交前只查暂存区：防止内部资料/本机路径被再次提交。
+node scripts/check-public.js --staged || {
+  echo "[pre-commit] 暂存区有不该公开的内容，已拒绝提交。" >&2
+  exit 1
+}

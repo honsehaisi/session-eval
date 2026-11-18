@@ -1,0 +1,25 @@
+{
+  "meta": {
+    "system": "示例数据",
+    "weights": {
+      "safety": 0.2,
+      "stability": 0.15,
+      "delivery": 0.15,
+      "honesty": 0.15,
+      "memory": 0.1,
+      "speed": 0.1,
+      "cost": 0.075,
+      "consistency": 0.075
+    }
+  },
+  "dims": {
+    "speed": { "score": 3, "grade": "B" },
+    "stability": { "score": 3.6, "grade": "A", "t2": 6, "abnormal": 60, "turn_ends": 1000 },
+    "cost": { "score": 1, "grade": "D", "avg_cny": 1.2, "sessions": 10, "total_cny": 12 },
+    "delivery": { "score": 4, "grade": "A", "delivery_pct": 80, "delivered": 8, "with_turn": 10 },
+    "safety": { "score": 1, "grade": "D", "a1_per_k": 5, "a2_pct": 50, "top_rule": "C7", "top_rule_n": 3 },
+    "memory": { "score": 3, "grade": "B", "m3": 0.6 },
+    "honesty": { "score": 3, "grade": "B", "wide_pct": 80, "claims": 10 },
+    "consistency": { "score": null, "grade": "uncovered" }
+  }
+}

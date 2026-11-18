@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>系统测评报告</title>
+<style>
+  :root {
+    --bg: #f7f7f5; --card: #fff; --ink: #1f2328; --muted: #6b7280; --line: #e5e7eb;
+    --a: #2563eb; --b: #7c3aed; --c: #64748b; --d: #d97706; --e: #991b1b; --none: #d1d5db;
+    --pink: #db2777;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 15px/1.6 -apple-system, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif; }
+  .page { max-width: 1240px; margin: 0 auto; padding: 32px 20px 48px; }
+  h1 { font-size: 24px; margin: 0 0 6px; }
+  .sub { color: var(--muted); font-size: 13px; }
+
+  /* 宽屏两栏：左 综合/八维/小结，右 低于线/建议 */
+  .grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+  .col-l, .col-r { display: grid; gap: 20px; align-content: start; min-width: 0; }
+  @media (min-width: 1080px) {
+    .grid { grid-template-columns: 62fr 38fr; gap: 22px; }
+  }
+
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 22px 24px; }
+  .card h2 { font-size: 14px; margin: 0 0 14px; color: var(--muted); font-weight: 600;
+             letter-spacing: .06em; display: flex; align-items: center; gap: 8px; }
+  .card > h2::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--a); }
+  .card.dims > h2::before { background: var(--b); }
+  .card.below > h2::before { background: var(--d); }
+  .card.advice > h2::before { background: #16a34a; }
+  .card.note > h2::before { background: var(--pink); }
+
+  /* 综合区：左格放大评级 + 表情 */
+  .overall { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 14px; align-items: stretch; }
+  .cell { border: 1px solid var(--line); border-radius: 12px; padding: 14px 12px; min-width: 0; }
+  .cell .k { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .cell .v { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  /* 三个小格：标签独占一行，数值和等级表情排在底行，1080 宽下也不会把字挤折行 */
+  .cell-sm { display: flex; flex-direction: column; justify-content: center; gap: 6px; }
+  .cell-foot { display: flex; align-items: flex-end; justify-content: space-between; gap: 6px; }
+  .cell-foot .v { min-width: 0; overflow-wrap: anywhere; }
+  .meme-cell { width: 32px; height: 32px; padding: 2px; border-radius: 10px; box-shadow: none; }
+  .meme-cell img { border-radius: 8px; }
+  @media (max-width: 1180px) {
+    .cell .v { font-size: 16px; }
+    .meme-cell { width: 30px; height: 30px; }
+  }
+  .grade-hero { display: flex; align-items: center; gap: 12px; }
+  .grade-big { font-size: 52px; line-height: 1.02; font-weight: 800; letter-spacing: -.02em; }
+  .grade-sub { font-size: 12px; color: var(--muted); font-weight: 600; margin-top: 6px;
+               white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .tint-a { color: var(--a); } .tint-b { color: var(--b); } .tint-c { color: var(--c); }
+  .tint-d { color: var(--d); } .tint-e { color: var(--e); } .tint-none { color: var(--muted); }
+
+  /* 表情瓦片：白底相框，白底方图在深色环境里也不发脏 */
+  .meme { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 3px;
+          line-height: 0; overflow: hidden; flex: none; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+  .meme img { width: 100%; height: 100%; display: block; border-radius: 9px; object-fit: cover; }
+  .meme-hero { width: 92px; height: 92px; }
+  .meme-hero img { border-radius: 10px; }
+
+  /* 八维：大等级 + 等级表情 */
+  .bar-head { display: grid; grid-template-columns: 76px 1fr 56px 56px 58px; gap: 10px;
+              align-items: baseline; margin: 0 0 8px; }
+  .bar-head .h-mid, .bar-head .h-grade {
+    font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: .06em; }
+  .bar-head .h-grade { text-align: center; }
+  .bar-row { display: grid; grid-template-columns: 76px 1fr 56px 56px 58px; gap: 10px;
+             align-items: center; margin: 8px 0; }
+  .bar-name { font-size: 14px; }
+  .bar-track { height: 18px; background: #f1f2f4; border-radius: 6px; position: relative; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 6px; }
+  .bar-val { font-size: 12px; color: var(--muted); text-align: right;
+             font-variant-numeric: tabular-nums; }
+  .bar-grade { font-size: 30px; line-height: 1; font-weight: 800; text-align: center;
+               letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .bar-grade.is-none { font-size: 13px; font-weight: 600; letter-spacing: 0; }
+  .bar-none { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+              font-size: 12px; color: var(--muted); background: repeating-linear-gradient(45deg,#eceef1 0 8px,#f6f7f8 8px 16px); }
+  .bar-row:nth-child(odd) .meme { transform: rotate(-2deg); }
+  .bar-row:nth-child(even) .meme { transform: rotate(2deg); }
+
+  /* 小结：数据派生的一句总结 + 右侧贴纸，把左下空白填住 */
+  .note { display: none; }
+  @media (min-width: 1080px) { .note { display: block; } }
+  .note-body { display: flex; gap: 14px; align-items: center; }
+  .note-meme { width: 84px; height: 84px; transform: rotate(-3deg); }
+  .note-txt { flex: 1; min-width: 0; }
+  .note-line { font-size: 13px; color: var(--ink); margin-bottom: 4px; }
+  .note-line .k { display: inline-block; min-width: 62px; color: var(--muted); }
+  .note-stickers { display: grid; gap: 6px; justify-items: center; flex: none; }
+  .note-stickers .meme:first-child { width: 46px; height: 46px; transform: rotate(-7deg); }
+  .note-stickers .meme:last-child { width: 38px; height: 38px; transform: rotate(6deg); }
+
+  /* 低于线 / 建议 */
+  .below-item { padding: 10px 0; border-top: 1px dashed var(--line); }
+  .below-item:first-of-type { border-top: 0; }
+  .below-head { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+  .below-name { font-weight: 600; }
+  .badge { display: inline-block; min-width: 20px; text-align: center; border-radius: 6px; padding: 0 6px;
+           font-size: 12px; font-weight: 700; color: #fff; }
+  .badge-a { background: var(--a); } .badge-b { background: var(--b); } .badge-c { background: var(--c); }
+  .badge-d { background: var(--d); } .badge-e { background: var(--e); } .badge-none { background: var(--none); color: var(--muted); }
+  .below-num { color: var(--muted); font-size: 13px; }
+  .below-nature { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .below-nature .how { color: var(--ink); }
+
+  .empty { color: var(--muted); font-size: 13px; }
+  footer { margin-top: 26px; color: var(--muted); font-size: 12px; line-height: 1.8; }
+
+  @media (max-width: 720px) {
+    .page { padding: 24px 14px 36px; }
+    .overall { grid-template-columns: 1fr 1fr; }
+    .grade-hero { gap: 8px; }
+    .meme-hero { width: 64px; height: 64px; }
+    .bar-head { display: none; }
+    .bar-row { grid-template-columns: 1fr 44px 40px; grid-template-areas: "n n n" "t t t" "v g m"; gap: 4px 8px; }
+    .bar-name { grid-area: n; }
+    .bar-track { grid-area: t; height: 20px; }
+    .bar-val { grid-area: v; text-align: left; }
+    .bar-grade { grid-area: g; font-size: 22px; text-align: left; }
+    .bar-row .meme { grid-area: m; width: 36px; height: 36px; }
+    .bar-row:nth-child(odd) .meme, .bar-row:nth-child(even) .meme { transform: none; }
+  }
+  @media print {
+    body { background: #fff; }
+    .page { max-width: none; padding: 0; }
+    .card { break-inside: avoid; border-color: #ccc; box-shadow: none; }
+    .note { display: none !important; }
+    .meme { box-shadow: none; }
+    .bar-grade { font-size: 22px; }
+    .bar-row .meme { width: 34px; height: 34px; }
+    .cell-sm .meme-cell { width: 28px; height: 28px; }
+    .overall { grid-template-columns: 1.5fr 1fr 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1 id="title"></h1>
+  <div class="sub" id="sub"></div>
+  <div id="app"></div>
+  <footer id="foot"></footer>
+</div>
+<script id="report-data" type="application/json">__REPORT_JSON__</script>
+<script id="meme-data" type="application/json">__MEMES_JSON__</script>
+<script>
+(function () {
+  var data = JSON.parse(document.getElementById('report-data').textContent);
+  var MEMES = JSON.parse(document.getElementById('meme-data').textContent);
+  // 维度名与人话说明：数据里有就用数据的（下游系统可自行改），没有才用这份兜底
+  var DIMS = [
+    ['safety', '安全', '会不会干出界的事；干出界了，事后收不收得回来'],
+    ['stability', '稳定', '干活中途会不会崩、报错、半途撂挑子'],
+    ['delivery', '交付', '开了会话有没有真做出东西，不是聊完就散'],
+    ['honesty', '诚实', '说了结论，有没有回头核一遍再算数'],
+    ['memory', '记忆', '该记住的记得住，该忘的能忘干净'],
+    ['speed', '速度', '干同一类活要花多久'],
+    ['cost', '成本', '一次会话花多少钱，会不会超预算'],
+    ['consistency', '一致性', '同一个问题问两次，答案差不差']
+  ];
+  var FALLBACK_LABEL = {}, FALLBACK_NOTE = {};
+  DIMS.forEach(function (d) { FALLBACK_LABEL[d[0]] = d[1]; FALLBACK_NOTE[d[0]] = d[2]; });
+  var dimOf = function (id) { return (data.dims || {})[id] || {}; };
+  function labelOf(id) {
+    if (id === 'overall') return '总体';
+    return dimOf(id).label || FALLBACK_LABEL[id] || id;
+  }
+  function noteOf(id) { return dimOf(id).note || FALLBACK_NOTE[id] || ''; }
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function gradeText(g) { return (!g || g === 'uncovered') ? '未覆盖' : g; }
+  function gradeClass(g) { return 'tint-' + gradeKey(g); }
+  function badge(g) { return '<span class="badge badge-' + gradeKey(g) + '">' + esc(g || '—') + '</span>'; }
+  function fmt(v, d) { return (v === null || v === undefined) ? '—' : Number(v).toFixed(d); }
+  function fmtTime(iso) {
+    if (!iso) return '—';
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return String(iso);
+    var t = new Date(d.getTime() + 8 * 3600 * 1000);
+    var p = function (n) { return n < 10 ? '0' + n : '' + n; };
+    return t.getUTCFullYear() + '-' + p(t.getUTCMonth() + 1) + '-' + p(t.getUTCDate()) + ' ' +
+           p(t.getUTCHours()) + ':' + p(t.getUTCMinutes()) + ':' + p(t.getUTCSeconds()) + ' (+08:00)';
+  }
+
+  // 把指标折成 0–4 分，再套报告脚注那套切点（≥3.5 A / ≥2.5 B / ≥1.5 C / ≥0.5 D / 其余 E）
+  // 只用来配装饰表情，不参与打分；3.5 算 A 是边界约定
+  function gradeFromScore(s) {
+    if (typeof s !== 'number' || !isFinite(s)) return 'none';
+    if (s >= 3.5) return 'A';
+    if (s >= 2.5) return 'B';
+    if (s >= 1.5) return 'C';
+    if (s >= 0.5) return 'D';
+    return 'E';
+  }
+
+  // 等级归一化：A–E 走自己的图，uncovered/null/认不出来都落到 none；缺图就不渲染，不抛错
+  function gradeKey(g) {
+    if (!g) return 'none';
+    var s = String(g).toLowerCase();
+    if (s === 'uncovered' || s === 'none') return 'none';
+    return /^[abcde]$/.test(s) ? s : 'none';
+  }
+  function memeTag(key, cls, alt) {
+    var src = MEMES[key];
+    if (!src) return '';
+    return '<div class="meme ' + cls + '"><img src="' + src + '" alt="' + esc(alt || '') + '"></div>';
+  }
+
+  var o = data.overall || {};
+  var sysName = (data.meta && data.meta.system) || '大肥鱼系统';
+  document.getElementById('title').textContent = sysName + '测评报告';
+
+  var lowest = (o.lowest || []).map(function (x) {
+    return labelOf(x.dim) + ' ' + x.grade;
+  }).join('、') || '—';
+  document.getElementById('sub').textContent =
+    '生成 ' + fmtTime(data.meta.generated_at) + ' · 样本时点 ' + fmtTime(data.meta.snapshot_at) +
+    ' · 已覆盖 ' + (o.covered || 0) + '/' + (o.total || 8);
+
+  // ---- 综合（四格都按等级配表情：综合直接取等级，另三格折成 4 分制再套等级表） ----
+  var low0 = (o.lowest || [])[0];
+  var coverK = gradeKey(gradeFromScore(o.total ? (o.covered || 0) / o.total * 4 : null));
+  var passK = gradeKey(gradeFromScore((o.pass_rate === null || o.pass_rate === undefined) ? null : o.pass_rate / 100 * 4));
+  var lowK = low0 ? gradeKey(low0.grade) : 'none';
+  var cardOverall = '<div class="card">' +
+    '<h2>综合</h2><div class="overall">' +
+    '<div class="cell"><div class="k">综合等级</div><div class="grade-hero">' +
+      '<div class="grade-big ' + gradeClass(o.grade) + '">' + esc(gradeText(o.grade)) + '</div>' +
+      memeTag('overall', 'meme-hero', '综合等级表情') +
+    '</div><div class="grade-sub">加权 ' + fmt(o.weighted_score, 2) + ' / 4</div></div>' +
+    '<div class="cell cell-sm"><div class="k">已覆盖</div><div class="cell-foot"><div class="v">' + (o.covered || 0) + ' / ' + (o.total || 8) + '</div>' +
+      memeTag(coverK, 'meme-cell', '已覆盖的等级表情') + '</div></div>' +
+    '<div class="cell cell-sm"><div class="k">最低维度</div><div class="cell-foot"><div class="v">' + esc(lowest) + '</div>' +
+      memeTag(lowK, 'meme-cell', '最低维度的等级表情') + '</div></div>' +
+    '<div class="cell cell-sm"><div class="k">合格率（≥B）</div><div class="cell-foot"><div class="v">' + (o.pass_rate === null || o.pass_rate === undefined ? '—' : o.pass_rate + '%') + '</div>' +
+      memeTag(passK, 'meme-cell', '合格率的等级表情') + '</div></div>' +
+    '</div></div>';
+
+  // ---- 八维：大等级 + 表情 ----
+  var cardDims = '<div class="card dims">' +
+    '<div class="bar-head"><h2>八维</h2><div class="h-mid">成长值</div><div></div><div class="h-grade">评估等级</div><div></div></div>';
+  DIMS.forEach(function (d) {
+    var id = d[0];
+    var dim = dimOf(id);
+    var score = dim.score;
+    var covered = typeof score === 'number';
+    var pct = covered ? Math.max(0, Math.min(100, score / 4 * 100)) : 0;
+    var key = gradeKey(dim.grade);
+    var fill = covered ? 'background: var(--' + key + '); width:' + pct + '%' : 'background: transparent';
+    cardDims += '<div class="bar-row">';
+    cardDims += '<div class="bar-name">' + esc(labelOf(id)) + '</div>';
+    cardDims += '<div class="bar-track"><div class="bar-fill" style="' + fill + '"></div>' +
+            (covered ? '' : '<div class="bar-none">未覆盖</div>') + '</div>';
+    cardDims += '<div class="bar-val">' + (covered ? fmt(score, 1) + '/4' : '—') + '</div>';
+    cardDims += '<div class="bar-grade ' + gradeClass(dim.grade) + (covered ? '' : ' is-none') + '">' +
+                esc(gradeText(dim.grade)) + '</div>';
+    cardDims += memeTag(key, '', labelOf(id) + ' ' + gradeText(dim.grade));
+    cardDims += '</div>';
+  });
+  cardDims += '</div>';
+
+  // ---- 小结：全部从数据推，不写死结论 ----
+  var coveredDims = DIMS.filter(function (d) { return typeof dimOf(d[0]).score === 'number'; });
+  var passDims = coveredDims.filter(function (d) { var g = dimOf(d[0]).grade; return g === 'A' || g === 'B'; });
+  var unmeasured = DIMS.filter(function (d) { return typeof dimOf(d[0]).score !== 'number'; });
+  var lowTxt = low0 ? labelOf(low0.dim) + ' ' + low0.grade + '（' + fmt(dimOf(low0.dim).score, 1) + ' / 4）' : '—';
+  var noteLines = '';
+  noteLines += '<div class="note-line"><span class="k">最拖后腿</span>' + esc(lowTxt) + '</div>';
+  noteLines += '<div class="note-line"><span class="k">还没测</span>' +
+               esc(unmeasured.length ? unmeasured.map(function (d) { return labelOf(d[0]); }).join('、') : '无') + '</div>';
+  noteLines += '<div class="note-line"><span class="k">合格</span>' +
+               passDims.length + ' / ' + coveredDims.length + ' 维到 B，合格率 ' +
+               (o.pass_rate === null || o.pass_rate === undefined ? '—' : o.pass_rate + '%') + '</div>';
+  noteLines += '<div class="note-line"><span class="k">样本</span>' +
+               (data.meta && data.meta.sessions ? data.meta.sessions : '—') + ' 次会话 · ' +
+               (data.meta && data.meta.turns ? data.meta.turns : '—') + ' 轮</div>';
+  var cardNote = '<div class="card note"><h2>小结</h2><div class="note-body">' +
+    memeTag(low0 ? gradeKey(low0.grade) : 'none', 'note-meme', '最拖后腿维度的表情') +
+    '<div class="note-txt">' + noteLines + '</div>' +
+    '<div class="note-stickers">' +
+      memeTag('sticker-sleep', '', '') +
+      memeTag('sticker-meal', '', '') +
+    '</div></div></div>';
+
+  // ---- 低于线 ----
+  var cardBelow = '<div class="card below"><h2>低于线</h2>';
+  var bl = (data.overall && data.overall.below_line) || (data.below_line || []);
+  if (!bl.length) cardBelow += '<div class="empty">没有低于 2.5 分的维度。</div>';
+  bl.forEach(function (id) {
+    var dim = dimOf(id);
+    var num = [];
+    if (typeof dim.avg_cny === 'number') num.push('平均每次 ' + dim.avg_cny + ' 元（' + dim.sessions + ' 次有效会话）');
+    if (typeof dim.c2_pct === 'number') num.push('超 ' + (dim.thr_cny || 0.5) + ' 元的占 ' + dim.c2_pct + '%');
+    if (typeof dim.a1_per_k === 'number') num.push('每千次越界 ' + dim.a1_per_k + ' 次');
+    if (typeof dim.a2_pct === 'number') num.push('能救回来 ' + dim.a2_pct + '%');
+    if (typeof dim.wide_pct === 'number') num.push('回查过 ' + dim.wide_pct + '%');
+    if (typeof dim.delivery_pct === 'number') num.push('有产出 ' + dim.delivery_pct + '%');
+    cardBelow += '<div class="below-item"><div class="below-head"><span class="below-name">' + esc(labelOf(id)) + '</span>' +
+            badge(dim.grade) + '<span class="below-num">' + esc(num.join(' · ') || '—') + '</span></div>' +
+            '<div class="below-nature">' + esc(noteOf(id)) + '</div></div>';
+  });
+  cardBelow += '</div>';
+
+  // ---- 建议 ----
+  var cardAdvice = '<div class="card advice"><h2>建议</h2>';
+  var sug = data.suggestions || [];
+  if (!sug.length) {
+    cardAdvice += '<div class="empty">暂时没有建议。</div>';
+  } else {
+    sug.forEach(function (s) {
+      var grade = s.dim === 'overall' ? 'A' : (dimOf(s.dim).grade || 'E');
+      cardAdvice += '<div class="below-item"><div class="below-head"><span class="below-name">' + esc(s.dim_label || labelOf(s.dim)) + '</span>' +
+              badge(grade) + '</div>' +
+              '<div class="below-nature">' + esc(s.finding || '') +
+              (s.cause ? '｜' + esc(s.cause) : '') + '</div>' +
+              '<div class="below-nature"><span class="how">怎么改：</span>' + esc(s.action || '') + '</div></div>';
+    });
+  }
+  cardAdvice += '</div>';
+
+  document.getElementById('app').innerHTML =
+    '<div class="grid">' +
+      '<div class="col-l">' + cardOverall + cardDims + cardNote + '</div>' +
+      '<div class="col-r">' + cardBelow + cardAdvice + '</div>' +
+    '</div>';
+
+  document.getElementById('foot').innerHTML =
+    '这些数是从本机的会话日志（session.v4.jsonl.zstd）里算出来的，按日志口径，不是账单口径。' +
+    '样本停在 ' + esc(fmtTime(data.meta.snapshot_at)) + '，报告生成于 ' + esc(fmtTime(data.meta.generated_at)) + '。' +
+    '<br>分数怎么换算成等级：3.5 分以上 A、2.5 分以上 B、1.5 分以上 C、0.5 分以上 D、0.5 分以下 E；B 算合格。' +
+    '表情包按等级配，只是标记好坏，不参与打分。';
+})();
+</script>
+</body>
+</html>

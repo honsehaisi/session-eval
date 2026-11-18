@@ -1,0 +1,6 @@
+#!/bin/sh
+# 推送前查全量 + 全历史：确认没有内部资料被推到公开仓。
+node scripts/check-public.js --history || {
+  echo "[pre-push] 历史或当前树有不该公开的内容，已拒绝推送。" >&2
+  exit 1
+}

@@ -1,0 +1,25 @@
+{
+  "name": "session-log-eval",
+  "version": "0.2.0",
+  "private": true,
+  "description": "会话日志评测算分工具：读日志 → 算八维分 → 出单文件报告",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=22.15.0"
+  },
+  "scripts": {
+    "test": "node --test tests/",
+    "doctor": "node scripts/doctor.js",
+    "report": "node scripts/run-all.js",
+    "html": "node scripts/build-report.js",
+    "events": "node scripts/export-events.js",
+    "sample": "node scripts/make-sample.js",
+    "check": "node scripts/check-report.js"
+  },
+  "keywords": [
+    "session-log",
+    "evaluation",
+    "report"
+  ],
+  "license": "UNLICENSED"
+}

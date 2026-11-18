@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>大肥鱼测评</title>
+<style>
+  html, body { height: 100%; margin: 0; }
+  body {
+    display: flex; align-items: center; justify-content: center;
+    background: #f6f7f9; color: #0f172a;
+    font-family: -apple-system, "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+  }
+  .wrap { width: min(560px, calc(100vw - 64px)); }
+  h1 { font-size: 22px; margin: 0 0 10px; letter-spacing: .5px; }
+  p { font-size: 14px; line-height: 1.9; color: #475569; margin: 0 0 8px; }
+  .steps { margin: 20px 0 0; padding: 16px 18px; background: #fff; border: 1px solid #e5e7eb;
+    border-radius: 12px; font-size: 13px; line-height: 2.1; color: #334155; }
+  .steps b { color: #0f172a; }
+  .hint { margin-top: 18px; font-size: 12.5px; color: #6366f1; }
+  code { background: #eef2ff; padding: 1px 6px; border-radius: 5px; font-size: 12px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>大肥鱼测评</h1>
+    <p>还没有测评结果。点右下角「重新测评」开始跑一遍。</p>
+    <div class="steps">
+      <b>它会做什么</b><br>
+      ① 读会话日志 → ② 算八个维度（速度/稳定/成本/交付/诚实/安全/记忆/一致性）<br>
+      ③ 生成报告页，跑完自动刷新到这个窗口
+    </div>
+    <p class="hint">全库大约要 2–4 分钟，进度在按钮左边、日志在「日志」里。</p>
+    <p>数据目录可以在「设置」里改，默认 <code>~/.dsh/sessions</code>。</p>
+  </div>
+</body>
+</html>
