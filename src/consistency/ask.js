@@ -5,6 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const HERE = __dirname;
+const { P } = require('../config.js');
 const ROOT = path.resolve(HERE, '../..');
 
 const argv = process.argv.slice(2);
@@ -17,7 +18,9 @@ const out = path.resolve(HERE, arg('out', `${tag}-plan.json`));
 
 const qs = JSON.parse(fs.readFileSync(path.join(ROOT, 'src/memory/questions.json'), 'utf8'));
 const template = fs.readFileSync(path.join(HERE, 'prompt-template.md'), 'utf8')
-  .split('\n---\n').pop().trim();
+  .split('\n---\n').pop().trim()
+  .split('<你的记忆库路径>').join(P.memoryDir)
+  .split('<你的 DSH 目录>').join(P.dshDir);
 
 const snaps = path.join(HERE, 'snapshots.json');
 let memorySnapshot = null;
