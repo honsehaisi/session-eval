@@ -14,7 +14,9 @@
     "html": "node scripts/build-report.js",
     "events": "node scripts/export-events.js",
     "sample": "node scripts/make-sample.js",
-    "check": "node scripts/check-report.js"
+    "check": "node scripts/check-report.js",
+    "check:public": "node scripts/check-public.js .",
+    "test:ci": "node --test --test-isolation=none tests/"
   },
   "keywords": [
     "session-log",
