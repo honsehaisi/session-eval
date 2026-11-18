@@ -38,6 +38,10 @@ const SKIP_REL = new Set([
   'src/safety/c7-hits.json',
   'src/safety/seq.json',
   'src/consistency/t0b-plan.json',
+  'src/consistency/t1-plan.json',
+  'src/consistency/answers-t0b.json',
+  'src/consistency/snapshots.json',
+  'src/memory/verdict-overrides.json',
   // 1.0.5：素材同步工具只给开发用（依赖本机表情库 + ffmpeg），不进运行包
   'scripts/sync-memes.js',
   // 安全层工具只给本机/开发用，不进运行包

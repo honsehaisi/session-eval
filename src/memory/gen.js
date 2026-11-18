@@ -103,13 +103,21 @@ const FACT_RES = [
   { re: /(\d{4}-\d{2}-\d{2})/g, kind: 'date' },
 ];
 
+function isSecretPage(file) {
+  try {
+    const raw = fs.readFileSync(file, 'utf8');
+    const m = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+    return !!(m && /^secret:\s*true\s*$/m.test(m[1]));
+  } catch (e) { return false; }
+}
+
 function walkPages(dir, out) {
   out = out || [];
   if (!fs.existsSync(dir)) return out;
   for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
     const p = path.join(dir, ent.name);
     if (ent.isDirectory()) walkPages(p, out);
-    else if (ent.name.endsWith('.md')) out.push(p);
+    else if (ent.name.endsWith('.md') && !isSecretPage(p)) out.push(p);
   }
   return out;
 }

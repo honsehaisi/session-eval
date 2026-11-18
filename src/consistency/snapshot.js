@@ -15,6 +15,14 @@ const tag = (() => {
   return i >= 0 && a[i + 1] ? a[i + 1] : 'latest';
 })();
 
+function isSecretPage(file) {
+  try {
+    const raw = fs.readFileSync(file, 'utf8');
+    const m = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+    return !!(m && /^secret:\s*true\s*$/m.test(m[1]));
+  } catch (e) { return false; }
+}
+
 function walk(dir, rel, acc) {
   for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
     if (SKIP_DIR.has(ent.name)) continue;
@@ -22,6 +30,7 @@ function walk(dir, rel, acc) {
     const r = rel ? rel + '/' + ent.name : ent.name;
     if (ent.isDirectory()) walk(p, r, acc);
     else if (ent.isFile()) {
+      if (isSecretPage(p)) continue;
       const h = crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
       acc.push({ file: r, sha256: h, bytes: fs.statSync(p).size });
     }
