@@ -38,9 +38,13 @@ node 系统测评/src/consistency/ask.js      --tag t0b
 node 系统测评/src/consistency/snapshot.js --tag t1
 node 系统测评/src/consistency/ask.js      --tag t1
 # 作答 → answers-t1.json（同一模板 v2、同样 7 批次）
-node 系统测评/src/consistency/judge.js --base answers-t0b.json --target answers-t1.json --out judge-t1.json
-node 系统测评/src/consistency/score.js --in judge-t1.json --out report-t1.json
+# 判分器 v3（2026-11-19 起）；--out 换个名字，旧的 judge-t1.json 是 v2 留档
+node 系统测评/src/consistency/judge.js --base answers-t0b.json --target answers-t1.json --out judge-t1-v3.json
+node 系统测评/src/consistency/score.js --in judge-t1-v3.json --out report-t1-v3.json
 ```
+
+> 本轮实测：v3 判 `same 53 / review 2`，与人工全量判（`judge-t1-manual.json`）逐条一致；strict 96.4% / A。
+> 正式证据仍挂人工那份：`config.paths.consistencyEvidence` → `report-t1-manual.json`。
 
 ## 条件必须与 T0′ 一致
 
@@ -52,14 +56,44 @@ node 系统测评/src/consistency/score.js --in judge-t1.json --out report-t1.js
 | 题面 | `src/memory/questions.json` 原文，一字不差 |
 | 记忆库 | 作答前先 `snapshot.js`，把 manifestHash 记进 `snapshots.json`（T0′ = `ede398524baa`） |
 
-## 判分口径（§6.2 判定条）
+## 判分口径（§6.2 判定条，v3 = 2026-11-19）
 
-1. 先人工判 **20 题**当金标准，规则与人工一致率 ≥ 95% 才准自动判全量。
-2. 规则判三个桶：`same`（数字集一致 / 都无答案）、`review`（数字不同但措辞近，需人核）、`diff`。
-3. `score.js` 出两个数：`strict`（只算 same，最保守）和 `loose`（same + review）。**正式数字用哪个由人工对齐后定**，没对齐前不许写进计划书。
+1. 先人工判**全量**当金标准（本轮 55 题），规则与人工一致才准自动判全量。
+2. 规则判三个桶：`same`（关键数字对得上）、`review`（发现矛盾但措辞近，需人核）、`diff`（数字互不相干 / 判定类型不同）。
+3. `score.js` 出两个数：`strict`（只算 same，最保守）和 `loose`（same + review）。**正式数字用哪个由人工对齐后定**。
+
+### v3 与 v2 的三处差别（v2 实测 strict 47.3% / E，全是假红）
+
+| 改法 | 为什么 |
+|---|---|
+| **先剥出处括注**：`（identity/accounts.md：…）` 这种整段不算答案 | T0′ 爱把出处挂在结论后面，里面的页号/路径/版本号全是数字，旧规则一比就「数字不同」 |
+| **关键数字去噪**：日期 `2026-11-05`、时刻 `23:00`、版本号 `v1.8`、章节号 `§8.6` 不算；小数允许取整差（`9.5 分钟` ↔ `9 分半`，仅限一边是整数、差 ≤ 0.5） | 这些不是结论；但 **2.77 ↔ 2.87 是真差**，不许放过 |
+| **实体先判**：两边都点到程序/文件名（`.exe/.bat/.mjs/.md`）且一个都不重合 → `review` | F-005 那种「`NapCatWinBootMain.exe` ↔ `napcat.bat`」是真分歧，不能因为数字对得上就白给 same |
+
+判 `same` 的判据只有一条：关键数字**一方能覆盖另一方**（另一方只是补充细节）。互不相干时再看措辞距离：`sim < 0.15` → `diff`，否则 `review` 交人工。
+
+### 已知边界（必须说清，否则就是假绿）
+
+- 纯文字对（双方都没有关键数字）v3 没有可比的硬证据，只能报「无冲突」——本批 **20/55（36%）** 是这一类。v3 排除矛盾，**不证明等价**；正式数仍以人工全量判的 `judge-t1-manual.json` 为准。
+- v3 是在本批 55 题上对着人工结论调的，**同一批数据不能当独立验证**。下次换库/换题先抽 20 题人工判，规则与人工一致率 ≥ 95% 再跑全量（§6.2 原文）。
+- 出处剥除靠后缀白名单（`.md/.json/.exe…`）识别；哪天出处写成「`（见某页）`」不带后缀，就剥不掉——判分单测里留了普通括注不剥的反例。
 
 ## 出数之后
 
 - 写 `report-t1.json`（脚本自动）
 - 更新计划书 §6.5 标注 + Ⅲ.2 实测卡 + 0.6 表第 6 行
-- 记忆页 `system-self-eval.md` 的「一致性」行（现在是「未覆盖」）
+- 记忆页 `system-self-eval.md` 的「一致性」行
+
+> 2026-11-19 状态：上面三项里的「计划书/实测卡」这次改不了——`docs/计划书-交付.md`、`docs/计划-可移植改造.md`
+> 在 11-18 安全层里已从开发仓移走（在加密保险箱），README 里指向它们的链接仍是死链，等下次整理文档时一起修。
+
+## A/B 实测（2026-11-19，冻结日志）
+
+目的：证明 2.72 → 2.82 的涨分**全部来自一致性接证据**，别的维没被动过。
+
+- 冻结快照：`~/.dsh/sessions` 517 个文件 / 237MB → `[临时目录]/eval-ab-1119/sessions`；两份 config 只差 `paths.consistencyEvidence`（A 空 / B 指 `src/consistency/report-t1-manual.json`），其余字段完全一样。
+- A（不接证据）：`2.72 / B / 67% / 覆盖 6/8`；B（接证据）：`2.82 / B / 71% / 覆盖 7/8`。
+- 逐字段对比 8 个产物：只有 `report.json` 的 `dims.consistency`（uncovered → A，strict 96.4 / loose 100 / tally 53·2）与 `overall`（covered 6→7、pass_rate 67→71、weighted 2.72→2.82）变了；`speed(task)/safety/a2/cost/honesty/stability/delivery` **逐字节一致**。
+- 结论：涨的 0.10 分与 +4 个百分点合格率可以全部归因到一致性这一维，其他维在冻结日志上没有任何漂移。
+
+> 顺手修了 `scripts/ab-check.js` 两个会误报「基线破了」的坑：① 没把 `startedAt/finishedAt` 当易变字段（同配置跑两遍也会判不同）；② 两次都没生成的产物（`src/tasks/reconcile.json`）被算成差异。

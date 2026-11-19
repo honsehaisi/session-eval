@@ -24,12 +24,16 @@ const FILES = [
 ];
 
 const VOLATILE = new Set(['generated_at', 'generatedAt', 'generated', 'timestamp', 'source', 'dir']);
+// 跑一次就会变的字段：本次 A/B 踩到的坑——tasks/report.json 的 startedAt/finishedAt 不在上面那张表里，
+// 于是「同配置跑两遍」被误报成基线破了。日志里的 earliestLogTime / endTime 这类是数据，不能抹。
+const VOLATILE_RE = /^(generated|started|finished|built|judged|taken|updated|created|scanned)(At|_at)?$/i;
+const isVolatile = (k) => VOLATILE.has(k) || VOLATILE_RE.test(k);
 
 function norm(v) {
   if (Array.isArray(v)) return v.map(norm);
   if (v && typeof v === 'object') {
     const o = {};
-    for (const k of Object.keys(v).sort()) if (!VOLATILE.has(k)) o[k] = norm(v[k]);
+    for (const k of Object.keys(v).sort()) if (!isVolatile(k)) o[k] = norm(v[k]);
     return o;
   }
   return v;
@@ -65,7 +69,9 @@ if (cmd === 'save') {
   let diff = 0;
   for (const f of FILES) {
     const x = a.files[f], y = b.files[f];
-    if (!x || !y || x.absent || y.absent) { console.log('? ' + f + ' 缺'); diff++; continue; }
+    if (!x || !y) { console.log('? ' + f + ' 两次快照都没记'); diff++; continue; }
+    if (x.absent && y.absent) { console.log('✓ ' + f + '（两跑都没生成）'); continue; }
+    if (x.absent || y.absent) { console.log('✗ ' + f + ' 只有一跑生成了'); diff++; continue; }
     const same = x.canon && y.canon ? x.canon === y.canon : x.sha === y.sha;
     if (!same) {
       diff++;

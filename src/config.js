@@ -30,6 +30,8 @@ const DEFAULTS = {
     // 不填 = 未覆盖（不按 0 分罚）。本机用 config.json 指向自己的产物；外发包不带 config.json。
     memoryEvidence: '',               // 记忆维度证据文件（report-offline.json 或 report.json 结构）
     speedEvidence: '',                // 速度维度证据文件（src/tasks/report.json 结构）
+    consistencyEvidence: '',          // 一致性维度证据文件（report-t1*.json：含 rate.strict/rate.loose 与 tally）
+    consistencyTemplate: '',          // 一致性题面模板（空 = 用内置 src/consistency/prompt-template.md；缺文件则该维未覆盖）
   },
   roots: {
     extraWriteRoots: [],              // 额外允许写的根（私有工作区/项目目录）

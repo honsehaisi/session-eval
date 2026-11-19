@@ -41,6 +41,15 @@ const SKIP_REL = new Set([
   'src/consistency/t1-plan.json',
   'src/consistency/answers-t0b.json',
   'src/consistency/snapshots.json',
+  // 1.0.7：T1 作答与判分结果都是本机私有产物（答案原文 + 我的分），既不能给别人看，
+  // 也不能让别人跑出我的数——一致性和记忆一样按 S6 处理：包里没有就显示「未覆盖」。
+  'src/consistency/answers-t1.json',
+  'src/consistency/judge-t1.json',
+  'src/consistency/judge-t1-manual.json',
+  'src/consistency/judge-t1-v3.json',
+  'src/consistency/report-t1.json',
+  'src/consistency/report-t1-manual.json',
+  'src/consistency/report-t1-v3.json',
   'src/memory/verdict-overrides.json',
   // 1.0.5：素材同步工具只给开发用（依赖本机表情库 + ffmpeg），不进运行包
   'scripts/sync-memes.js',
@@ -113,6 +122,9 @@ for (const rel of ['src/consistency/prompt-template.md', 'src/consistency/README
 // 首次启动由 main.js 写「内置默认」（~/.dsh/sessions + 空证据），用户可在设置里改。
 
 // 2) 打包
+// 离线兜底：本机 GitHub 证书链偶发验不过（UNABLE_TO_VERIFY_LEAF_SIGNATURE），
+// 用 ELECTRON_ZIP_DIR 指现成的 electron-v43.3.0-win32-x64.zip 所在目录，跳过下载。
+const ELECTRON_ZIP_DIR = process.env.ELECTRON_ZIP_DIR || '';
 const outDir = path.join(PROJECT, 'dist');
 const built = await packager({
   dir: HERE,
@@ -121,6 +133,7 @@ const built = await packager({
   platform: 'win32',
   arch: 'x64',
   electronVersion: '43.3.0',
+  ...(ELECTRON_ZIP_DIR ? { electronZipDir: ELECTRON_ZIP_DIR } : {}),
   out: outDir,
   overwrite: true,
   asar: true,

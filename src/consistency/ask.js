@@ -16,11 +16,27 @@ const arg = (n, d) => {
 const tag = arg('tag', 't1');
 const out = path.resolve(HERE, arg('out', `${tag}-plan.json`));
 
-const qs = JSON.parse(fs.readFileSync(path.join(ROOT, 'src/memory/questions.json'), 'utf8'));
-const template = fs.readFileSync(path.join(HERE, 'prompt-template.md'), 'utf8')
+// S4 解耦：题库/模板路径走 config，缺文件给明确提示（该维按未覆盖处理），不抛 ENOENT
+function readOrBail(cfgVal, fallback, label) {
+  const f = cfgVal || fallback;
+  if (!fs.existsSync(f)) {
+    console.error('[一致性] ' + label + '缺失：' + f);
+    console.error('  该维度按「未覆盖」处理；要跑 T1/T2，先在 config.json 的 paths 里指对路径。');
+    process.exit(3);
+  }
+  return fs.readFileSync(f, 'utf8');
+}
+const qs = JSON.parse(readOrBail(P.qbankFile, path.join(ROOT, 'src/memory/questions.json'), '题库'));
+// 与 T0′ 题面逐字对齐的三点：
+// ① 先统一成 LF——T0′ 的 rendered 是 \n 换行，模板文件是 CRLF，直接切会差字节；
+// ② 切分要容忍 CRLF——只按 \n---\n 切会切不掉，整段头注释混进题面；
+// ③ 路径写 Windows 反斜杠形态——T0′ 的 rendered 就是 C:\Users\... 这种。
+const winPath = (s) => s.replace(/\//g, '\\');
+const template = readOrBail(P.consistencyTemplate, path.join(HERE, 'prompt-template.md'), '题面模板')
+  .replace(/\r\n/g, '\n')
   .split('\n---\n').pop().trim()
-  .split('<你的记忆库路径>').join(P.memoryDir)
-  .split('<你的 DSH 目录>').join(P.dshDir);
+  .split('<你的记忆库路径>').join(winPath(P.memoryDir))
+  .split('<你的 DSH 目录>').join(winPath(P.dshDir));
 
 const snaps = path.join(HERE, 'snapshots.json');
 let memorySnapshot = null;

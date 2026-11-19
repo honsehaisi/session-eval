@@ -156,6 +156,25 @@ function checkMemory(cfg) {
   };
 }
 
+function checkConsistency(cfg) {
+  // S4：一致性靠「题库 + 题面模板」跑 T1/T2，两样缺一样就只能报未覆盖
+  const qbank = cfg.P.qbankFile || path.join(ROOT, 'src/memory/questions.json');
+  const tpl = cfg.P.consistencyTemplate || path.join(ROOT, 'src/consistency/prompt-template.md');
+  const okQ = fs.existsSync(qbank);
+  const okT = fs.existsSync(tpl);
+  const ev = cfg.P.consistencyEvidence;
+  const okE = ev ? fs.existsSync(ev) : false;
+  const bit = (ok, p) => (ok ? path.relative(ROOT, p).replace(/\\/g, '/') : path.relative(ROOT, p).replace(/\\/g, '/') + '（缺失）');
+  return {
+    level: okQ && okT ? 'ok' : 'warn',
+    name: '一致性',
+    detail: '题库 ' + bit(okQ, qbank) + '｜模板 ' + bit(okT, tpl) + '｜证据 ' + (ev ? bit(okE, ev) : '未配置'),
+    fix: okQ && okT
+      ? (okE ? '' : '没证据 = 该维度报「未覆盖」；跑完 T1/T2 后用 paths.consistencyEvidence 指过去，不按 0 分罚')
+      : '题库或模板缺失：一致性维度会报「未覆盖」；在 config.json 的 paths 里补 qbankFile / consistencyTemplate',
+  };
+}
+
 function checkRules() {
   let R;
   try { R = require('../src/rules.js'); } catch (e) { R = null; }
@@ -225,6 +244,7 @@ function run(opts) {
     checkSample(adapter, count.files),
     checkRules(),
     checkMemory(CFG),
+    checkConsistency(CFG),
     checkOutputs(),
   ].filter(Boolean);
   const cov = checkGenericCoverage(name, adapter);

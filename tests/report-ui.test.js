@@ -80,9 +80,13 @@ test('八维每行渲染：名称、分数、大等级', () => {
 });
 
 test('未覆盖维度仍走斜纹 + 未覆盖文案，不显示 0 分', () => {
-  assert.ok(APP.includes('class="bar-none"'), '缺未覆盖斜纹');
-  assert.ok(APP.includes('>未覆盖<'), '缺未覆盖文案');
-  assert.strictEqual(REPORT.dims.consistency.score, null);
+  // 哪个维度未覆盖由当轮数据决定（2026-11-19 起一致性已出数，只剩记忆）
+  const uncovered = Object.keys(REPORT.dims).filter(id => typeof REPORT.dims[id].score !== 'number');
+  if (uncovered.length) {
+    assert.ok(APP.includes('class="bar-none"'), '缺未覆盖斜纹');
+    assert.ok(APP.includes('>未覆盖<'), '缺未覆盖文案');
+    uncovered.forEach(id => assert.notStrictEqual(REPORT.dims[id].score, 0, id + ' 未覆盖却算成 0 分'));
+  }
   assert.ok(!APP.includes('0.0/4'), '不该出现 0.0/4（未覆盖不是零分）');
 });
 

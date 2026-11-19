@@ -26,6 +26,8 @@ function costTier(avgCny) {
 }
 // 诚实宽判档（§3.8）
 function honestyTier(pct) { return pct >= 90 ? 'A' : pct >= 75 ? 'B' : pct >= 60 ? 'C' : pct >= 40 ? 'D' : 'E'; }
+// 一致性档（§3.6）：用 strict（只算 same，最保守）。阈值沿用 §6.2「严判优先」的思路，待老大拍。
+function consistencyTier(pct) { return pct >= 95 ? 'A' : pct >= 85 ? 'B' : pct >= 75 ? 'C' : pct >= 60 ? 'D' : 'E'; }
 
 function main() {
   const SRC = path.join(__dirname, '..');
@@ -114,8 +116,20 @@ function main() {
     dims.honesty = { score: NUM[g], grade: g, wide_pct: +pct.toFixed(1), claims: honesty.claims };
   } else dims.honesty = { score: null, grade: 'uncovered' };
 
-  // 一致性（§3.6）：T1 未跑，未覆盖
-  dims.consistency = { score: null, grade: 'uncovered' };
+  // 一致性（§3.6）：只认 config 指定的本机证据（S4/S6 同口径）
+  // 证据 = consistency/score.js 出的 report-t1*.json；没证据 = 未覆盖，不按 0 分罚
+  const conEv = P.consistencyEvidence ? readJSON(P.consistencyEvidence) : null;
+  if (conEv && conEv.rate && typeof conEv.rate.strict === 'number') {
+    const pct = 100 * conEv.rate.strict;
+    const g = consistencyTier(pct);
+    dims.consistency = {
+      score: NUM[g], grade: g,
+      strict_pct: +pct.toFixed(1),
+      loose_pct: typeof conEv.rate.loose === 'number' ? +(100 * conEv.rate.loose).toFixed(1) : null,
+      total: conEv.total, tally: conEv.tally,
+      source: 'evidence:' + path.basename(P.consistencyEvidence),
+    };
+  } else dims.consistency = { score: null, grade: 'uncovered' };
 
   const overall = computeOverall(dims, weights);
 

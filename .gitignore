@@ -58,6 +58,13 @@ src/memory/report.json
 src/memory/report-offline.json
 src/memory/verdict-overrides.json
 src/consistency/answers-t0b.json
+src/consistency/answers-t1.json
+src/consistency/judge-t1.json
+src/consistency/judge-t1-manual.json
+src/consistency/report-t1.json
+src/consistency/report-t1-manual.json
+src/consistency/judge-t1-v3.json
+src/consistency/report-t1-v3.json
 src/consistency/t0b-plan.json
 src/consistency/t1-plan.json
 src/consistency/snapshots.json

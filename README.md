@@ -248,7 +248,7 @@ node scripts/make-sample.js --out D:/tmp/demo  # 造一份 DSH 格式的示例�
 | 稳定 / 成本 / 交付 / 安全 / 诚实 | 本次日志实时算 | ✅ 换目录就换数 |
 | 速度 | run-all 每轮现算（`src/tasks/segment.js`：S1 = turn 内耗时全库中位，S2 = 任务段耗时中位） | ✅ 换目录就换数 |
 | 记忆 | 题库**从被考者自己的记忆库生成**（`gen.js --auto` 出草稿 → 人工抽检）；分数走 `paths.memoryEvidence` | ⚠️ 只能测「自己的库」：拿别人的题库来跑，问的是别人的页面，答不出来也不该扣分 |
-| 一致性 | T1 未复问（≥ 2026-11-19） | ⛔ 未覆盖 |
+| 一致性 | T1 已复问（2026-11-19）：T0′ ↔ T1 同模板隔 7 天，strict 96.4% / A；分数走 `paths.consistencyEvidence` | ⚠️ 题库也要从自己的库出（`paths.qbankFile`） |
 
 > **S6 证据开关（2026-11-14 拍板，速度当天接回现算）**：记忆维度先关着，因为「题库」必须是**被考者自己的**记忆库出的题——
 > 我那份 55 题问的是 `identity/accounts.md` 之类的我的页面，别人既答不出也没有意义。所以不是「发题库」，是「发造题工具」：
@@ -266,7 +266,7 @@ node scripts/make-sample.js --out D:/tmp/demo  # 造一份 DSH 格式的示例�
 
 - **速度**已接进 run-all：S1 = 所有 turn 耗时（turn/end − turn/start）全库中位；S2 = 任务段耗时中位（`src/tasks/segment.js`，N=3、4h 空闲）。N 改 2/5 时中位会漂，日志少时样本不足要标「部分覆盖」。
 - **交付主档只算有 `turn` 的会话**，空会话单列「开而不用率」。
-- **一致性未出数**：T0′ 基线已落，T1 要 ≥ 2026-11-19 复问。
+- **一致性已出数（2026-11-19）**：T0′ ↔ T1 隔 7 天、同一模板 v2，人工全量判 same 53 / review 2 → strict 96.4% / A。判分器 v3（剥出处 + 关键数字去噪 + 实体先判）与人工逐条一致；它的边界写在 `src/consistency/README.md`「已知边界」——纯文字对不证明等价。
 - **成本只算会话日志口径**，不是账单：重试、标题生成、搜索 LLM 的 token 不落 `usage`，实际花费会偏高。
 - **隔离是规则级不是物理级**：断网测试靠子代理守 prompt；DSH 当前 file policy 为 `danger-full-access`，明确授权后能读工作区。
 - **所有数字都是快照**：日志在长，隔天复跑会漂；引用必须带样本时点。
@@ -292,7 +292,7 @@ node scripts/make-sample.js --out D:/tmp/demo  # 造一份 DSH 格式的示例�
 - 成本出不了数 → `inputTokens` / `outputTokens` 没对上。
 
 **速度 / 记忆 / 一致性显示「未覆盖」**
-正常，这是 S6 的设计：速度与记忆的分数要靠本机证据文件（`speedEvidence` / `memoryEvidence`）才算得出来，一致性 T1 要到 2026-11-19 之后才出数。三个都标「未覆盖」时，综合分按剩余维度归一化，不是按 0 分罚。
+正常，这是 S6 的设计：速度与记忆的分数要靠本机证据文件（`speedEvidence` / `memoryEvidence`）才算得出来，一致性也是（`consistencyEvidence` 指向哪个 `report-t*.json` 就用哪份）。三个都标「未覆盖」时，综合分按剩余维度归一化，不是按 0 分罚。
 
 **和上次跑的数字不一样**
 日志在长。要对比就钉住同一份日志目录（冻结快照）+ 同一份 `config.json`，并且只比除时间戳外的字段。
