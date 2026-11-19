@@ -33,10 +33,14 @@ if (/https?:\/\//.test(html)) fail('HTML 含外链（要求离线可开）');
 });
 
 // 4. 未覆盖显示「未覆盖」而不是 0 分（哪个维度未覆盖由数据决定：本轮是记忆，一致性 2026-11-19 已出数）
-if (!html.includes('未覆盖')) fail('缺少未覆盖文案');
 const uncovered = Object.entries(report.dims).filter(([, d]) => d.score === null).map(([k]) => k);
-if (!uncovered.length) fail('八维全有分：请确认未覆盖文案是模板残留，还是数据真的满了');
-console.log('未覆盖维度：' + uncovered.join(', '));
+if (uncovered.length) {
+  if (!html.includes('未覆盖')) fail('缺少未覆盖文案');
+  console.log('未覆盖维度：' + uncovered.join(', '));
+} else {
+  // 2026-11-19 记忆维度接上后八维全覆盖，页面本来就不该出现「未覆盖」
+  console.log('八维全覆盖（没有未覆盖维度）');
+}
 
 // 5. overall 三个数齐全
 const o = report.overall || {};

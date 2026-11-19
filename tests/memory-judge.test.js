@@ -41,6 +41,24 @@ test('作答缺失或超时 → unknown', () => {
   assert.equal(autoVerdict(R(['x']), { answer: '（超时）20 分钟未收敛，被中止', channel: 'none' }), 'unknown');
 });
 
+// 2026-11-19 扩题库时踩到的坑：题面本身就带着假事实的词，答对的人会复述它（「不是版本冲突」），
+// 只按 includes 判会把答对的算成 fabricated。
+test('H 题：否定式复述假事实不算编造', () => {
+  const q = { type: 'H', forbidden: ['版本冲突'], key_facts: ['是 cookie 撑爆请求头'] };
+  assert.equal(autoVerdict(q, { answer: '不是版本冲突，是 71 个 cookie 撑过 16 KB', channel: 'memory' }), 'hit');
+  assert.equal(autoVerdict(q, { answer: '样本是 9 组，没有扩到 30 组', channel: 'memory' }), 'hit');
+  assert.equal(autoVerdict(q, { answer: '就是版本冲突，插件打架', channel: 'memory' }), 'fabricated');
+});
+
+test('F 题：把旧值当现行说出来才算复述；否定式提及算答对', () => {
+  const q = { type: 'F', forbidden: ['纯黑底'] };
+  assert.equal(autoVerdict(q, { answer: '对，默认纯黑底', channel: 'memory' }), 'off');
+  // 2026-11-19 改口径：答对的人会顺手说「不是纯黑底，是白底加黑框」，
+  // 光按 includes 会把这种判成复述；改成「断言才算」（前后 30 字内有否定/作废类字眼就不算）
+  assert.equal(autoVerdict(q, { answer: '不是纯黑底，是白底加黑框', channel: 'memory' }), 'hit');
+  assert.equal(autoVerdict(q, { answer: '底色那事早改成白底了', channel: 'memory' }), 'hit');
+});
+
 test('题号不影响判定：同一个答案配不同 id 结果相同', () => {
   const a = { answer: '是 621395071', channel: 'memory' };
   assert.equal(autoVerdict({ id: 'R1-001', type: 'R1', key_facts: ['621395071'] }, a),

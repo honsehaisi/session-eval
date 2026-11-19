@@ -19,7 +19,27 @@ const RAW = path.resolve(HERE, '../../_work/answers-raw.jsonl');
 const OVERRIDE = path.join(HERE, 'verdict-overrides.json');
 
 const TIMEOUT = /(超时|未收敛|被中止|未给答案)/;
-const DENY = /(没有|不存在|并不是|并没有|不是这样|否认)/;
+const DENY = /(没有|不存在|并不是|并没有|不是|并非|不对|不行|不能|不完全|不成立|否认|搞错|记错)/;
+
+// H 题：假事实只有「被当成真的说出来」才算 fabricated。
+// 否定式复述（「不是版本冲突」「没有扩到 30 组」）不能算——题面本身就带着那个词，
+// 照字面 includes 会把答对的人也判成编造（2026-11-19 扩题库时踩到）。
+// 判定窗口：前后 30 字内出现否定/作废类字眼，就算「只是提到了」，不算「当现行说出来」。
+// 光看前面不够——「老大一句『背景调回白底，黑色背景好丑』把它否了」这种引用，
+// 否定词在术语后面，按前向窗口会误判成复述（2026-11-19 实测踩到）。
+const NEG_MARK = /[不没非无否]|作废|过时|改成|改回|已改|删|撤|旧|别|替代/;
+const WINDOW = 30;
+function assertsFalse(s, terms) {
+  for (const t of terms) {
+    let i = s.indexOf(t);
+    while (i >= 0) {
+      const ctx = s.slice(Math.max(0, i - WINDOW), i + t.length + WINDOW);
+      if (!NEG_MARK.test(ctx)) return true;
+      i = s.indexOf(t, i + 1);
+    }
+  }
+  return false;
+}
 
 // 只按题库字段判，不看题号；换任何题库都成立
 function autoVerdict(q, a) {
@@ -29,9 +49,9 @@ function autoVerdict(q, a) {
   if (TIMEOUT.test(s)) return 'unknown';
   const ch = a.channel || 'none';
   const forbidden = (q && q.forbidden) || [];
-  if (/^F/.test(q.type)) return forbidden.some((t) => s.includes(t)) ? 'off' : 'hit';
+  if (/^F/.test(q.type)) return assertsFalse(s, forbidden) ? 'off' : 'hit';
   if (q.type === 'H') {
-    if (forbidden.some((t) => s.includes(t))) return 'fabricated';
+    if (assertsFalse(s, forbidden)) return 'fabricated';
     return DENY.test(s) ? 'hit' : 'off';
   }
   const facts = (q && q.key_facts) || [];
@@ -84,8 +104,8 @@ function main() {
 
   const out = {
     sample: {
-      askedAt: '2026-11-12 12:00–13:10（UTC+8）',
-      method: '子代理代替新会话：干净 cwd、只喂题面、不给答案；部分题目读到 _quiz_sandbox 内的 .memory 副本（内容与真源一致，index.md 除外）',
+      askedAt: '2026-11-19 22:55–23:20（UTC+8）',
+      method: '子代理代替新会话：cwd 在 %TEMP% 空目录、只喂题面、不给答案；90 题（R 按 8 题一批，H/F 一题一批）；作答期间题库与答案类文件已移出项目目录',
       caveat: '子代理与 GUI 新会话不完全等价：工具体系相同，但注入时序与用户在场与否不同，本轮到数按「代测」记',
     },
     judge: {

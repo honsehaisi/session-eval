@@ -47,7 +47,23 @@ if (fs.existsSync(snaps)) {
   memorySnapshot = { tag: last.tag, takenAt: last.takenAt, manifestHash: last.manifestHash };
 }
 
-const items = qs.filter((q) => !q.stale).map((q) => ({
+// 2026-11-19：题库扩容后（55 → 90），T2 起必须按 T1 的计划钉住同一批题，
+// 否则复问的题面和 T0′/T1 不是同一组，一致性就不成立。
+// 用法：--from-plan t1-plan.json（只取该计划里的 id，顺序照计划）
+const fromPlan = arg('from-plan', '');
+let planIds = null;
+if (fromPlan) {
+  const plan = JSON.parse(fs.readFileSync(path.resolve(HERE, fromPlan), 'utf8'));
+  planIds = (plan.items || []).map((x) => x.id);
+  if (!planIds.length) { console.error('[一致性] 计划里没有 items：' + fromPlan); process.exit(3); }
+}
+const pool = planIds ? planIds.map((id) => qs.find((q) => q.id === id)).filter(Boolean) : qs.filter((q) => !q.stale);
+if (planIds && pool.length !== planIds.length) {
+  console.error(`[一致性] 计划 ${planIds.length} 题，题库里只找到 ${pool.length} 题——先确认题库有没有删题`);
+  process.exit(3);
+}
+
+const items = pool.map((q) => ({
   id: q.id,
   type: q.type,
   prompt: q.prompt,

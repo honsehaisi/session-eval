@@ -82,7 +82,7 @@ function validate(qs) {
   }
 
   // 5) 配额（§7.2.4）
-  const quota = { R1: 12, R2: 10, R3: 5, R4: 3, H: 15, F: 10 };
+  const quota = { R1: 12, R2: 10, R3: 5, R4: 3, H: 30, F: 30 };
   const quotaProblems = Object.entries(quota)
     .filter(([t, n]) => (stats.byType[t] || 0) !== n)
     .map(([t, n]) => `配额 ${t}: 应 ${n}，实际 ${stats.byType[t] || 0}`);
@@ -214,7 +214,7 @@ function autoGenerate() {
     });
   }
 
-  const quota = { R1: 12, R2: 10, R3: 5, R4: 3, H: 15, F: 10 };
+  const quota = { R1: 12, R2: 10, R3: 5, R4: 3, H: 30, F: 30 };
   const out = path.resolve(ROOT, '_work/candidates.json');
   const doc = {
     generatedAt: new Date().toISOString(),
