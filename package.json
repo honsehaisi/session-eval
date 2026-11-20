@@ -16,7 +16,8 @@
     "sample": "node scripts/make-sample.js",
     "check": "node scripts/check-report.js",
     "check:public": "node scripts/check-public.js .",
-    "test:ci": "node --test --test-isolation=none tests/"
+    "test:ci": "node --test --test-isolation=none tests/",
+    "summary": "node scripts/summary.js"
   },
   "keywords": [
     "session-log",
