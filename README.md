@@ -218,7 +218,7 @@ node scripts/make-sample.js --out D:/tmp/demo  # 造一份 DSH 格式的示例�
 - 每条规则：`level`（红/确认/留痕/绿）、`tier`（T1/T2/T3 授权分类）、`title`、`target`（`generic` 通用 / `dsh` 依赖本系统专有工具名与目录）、`fires`（`false` = 只描述不判定）。
 - 和机器有关的东西都在 `targets` / `protected` / `identity`：系统目录、DSH 配置与代码标记、工作区标记、人格页保护、QQ 主人 uid、密钥扫描目录与关键字。
 - 判定用的正则全在 `patterns`；`_` 开头的字段是注释，不会被读。
-- 改完依次：`node --test tests/`（表结构与正则语义有单测）→ `node src/safety/matcher.js`（看零命中清单）→ 用冻结日志跑 A/B（做法见 `docs/实测-S3-规则外置.md`）。
+- 改完依次：`node --test --test-isolation=none tests/`（表结构与正则语义有单测）→ `node src/safety/matcher.js`（看零命中清单）→ 用冻结日志跑 A/B（`scripts/ab-check.js`）。
 
 **静默 0 命中是这类外置最大的坑**：规则表读进来了但 target/路径判错，A1 会变成 0 次而不报错——所以 matcher 每次都打印「零命中 N 条」，`doctor` 也会打 generic/dsh 分布。
 
@@ -229,15 +229,13 @@ node scripts/make-sample.js --out D:/tmp/demo  # 造一份 DSH 格式的示例�
 
 | 想知道 | 去哪 |
 |---|---|
-| **交给工程实现看这份** | `docs/计划书-交付.md`（交付版 v1.1：任务/验收/红线/测评规格） |
 | 接入自己的日志（通用格式 / 让 AI 写适配器） | 本文件 §5 + `docs/给AI的适配器施工单.md` |
-| 八维权重、四档线、综合算法（唯一口径） | `docs/计划书-交付.md` **§二 评分协议** |
-| 每个维度的指标定义与实测 | `docs/计划书.md` §1–§8 |
-| 可移植改造（S1–S5）进度与坑 | `docs/计划-可移植改造.md` |
-| 一致性 T1 怎么跑 | `src/consistency/README.md` |
-| 记忆断网复测 | `docs/记忆复测-断网-2026-11-12.md` |
-| 上一轮一致性审查 | `docs/审查报告-2026-11-12.md` |
-| 上一版计划（只作对照，已停维护） | `docs/计划v0-留档.md` |
+| 八维权重、四档线、综合算法（唯一口径） | 本文件 §6 + `src/score/collect.js` 的权重表 + 各维度判定函数 |
+| 一致性 T1 怎么跑、判分边界 | `src/consistency/README.md` |
+| 记忆维度怎么出题/判分 | `src/memory/gen.js --auto`（造题）→ `ask.js`（提问单）→ `judge.js`（判分）→ `score.js` |
+| 安全规则怎么改 | 本文件 §5.3 + `rules/safety.json` 的 `_` 注释字段 |
+
+> 交付版计划书、历次审查报告与实测记录属于内部资料，**不随公开仓发布**；对外看口径以本 README、`src/consistency/README.md` 与 `docs/` 里现存的两份文档为准。
 
 **一条铁律**：0–4 分制唯一，A=4 B=3 C=2 D=1 E=0；不设百分制；权重只在计划书 §0.6 表登记一次；未出数的维度标「未覆盖」，不进 `min`、不按 E 罚。
 
@@ -258,7 +256,7 @@ node scripts/make-sample.js --out D:/tmp/demo  # 造一份 DSH 格式的示例�
 > 开之前先看 `memoryEvidence`：不填 = 未覆盖（不进 `min`、不按 0 分罚）。
 > 速度不受这个开关限制：`src/tasks/segment.js` 已接进 run-all，每轮按日志现算，对谁都成立。
 > 桌面版外发包**不带** `config.json`、`report.html`、`src/memory/report-offline.json`、`src/tasks/report.json`，
-> 所以别人第一次跑出来只有**记忆、一致性**两格是「未覆盖」——记忆等 2026-11-19 开放（见 `docs/计划-可移植改造.md` S6）。
+> 所以别人第一次跑出来只有**记忆、一致性**两格是「未覆盖」——这两维要靠自己的证据文件（`memoryEvidence` / `consistencyEvidence`）才算得出分。
 
 ---
 
@@ -309,7 +307,7 @@ node scripts/make-sample.js --out D:/tmp/demo  # 造一份 DSH 格式的示例�
 ├── package.json           脚本入口（零依赖）
 ├── config.sample.json     配置模板；config.json 是本机文件（不入库）
 ├── rules/                 安全规则表（47 条，带 target 标签）
-├── docs/                  计划书、审查报告、断网复测、可移植改造
+├── docs/                  给 AI 的适配器施工单、给 AI 的使用方式、traps 清单
 ├── report/                template.html + 构建出的 report.html
 ├── scripts/               doctor / run-all / build-report / check-report / make-sample / export-events
 ├── src/
@@ -320,7 +318,7 @@ node scripts/make-sample.js --out D:/tmp/demo  # 造一份 DSH 格式的示例�
 │   ├── zframes.js         多帧 zstd 读取器
 │   ├── cost/ honesty/ safety/ memory/ consistency/ tasks/  各维度脚本
 │   └── score/             汇总（collect → report.json）
-└── tests/                 口径自测（90 项）
+└── tests/                 口径自测（125 项）
 ```
 
 ---
