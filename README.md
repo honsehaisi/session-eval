@@ -290,7 +290,7 @@ node scripts/make-sample.js --out D:/tmp/demo  # 造一份 DSH 格式的示例�
 - 成本出不了数 → `inputTokens` / `outputTokens` 没对上。
 
 **速度 / 记忆 / 一致性显示「未覆盖」**
-正常，这是 S6 的设计：速度与记忆的分数要靠本机证据文件（`speedEvidence` / `memoryEvidence`）才算得出来，一致性也是（`consistencyEvidence` 指向哪个 `report-t*.json` 就用哪份）。三个都标「未覆盖」时，综合分按剩余维度归一化，不是按 0 分罚。
+速度：正常应当每轮现算（`src/tasks/report.json`），只有 `speedEvidence` 指向了坏文件才会未覆盖。记忆/一致性：这是 S6 的设计，分数要靠本机证据文件（`memoryEvidence` / `consistencyEvidence`）才算得出来，一致性指向哪个 `report-t*.json` 就用哪份。任何一维标「未覆盖」时，综合分按剩余维度归一化，不是按 0 分罚。
 
 **和上次跑的数字不一样**
 日志在长。要对比就钉住同一份日志目录（冻结快照）+ 同一份 `config.json`，并且只比除时间戳外的字段。
@@ -326,7 +326,7 @@ node scripts/make-sample.js --out D:/tmp/demo  # 造一份 DSH 格式的示例�
 ## 10. 红线（改代码前先看）
 
 1. `src/memory/questions.json` 与 `src/consistency/prompt-template.md` **2026-11-19 之前不许动**——一改一致性 T1 就作废。
-   速度/记忆的证据开关（S6）已经建好，但**开放这三维本身也等 2026-11-19**。
+   八维现已全部可测（记忆/一致性要自己造题作答，见 `docs/给AI的使用方式.md` §7）；改题库/模板仍按上面这条，先想清楚要不要重做基线。
 2. 不动八维档位、权重、成本口径（2026-11-14 已定）。
 3. 不把旧快照当成绩重跑。
 4. `report/report.html` 必须保持单文件、离线可开、无外链。
