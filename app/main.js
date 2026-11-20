@@ -54,7 +54,7 @@ function seedConfig() {
     paths: {
       sessionsDir: '~/.dsh/sessions', memoryDir: '~/.memory', homeDir: '~',
       dshDir: '~/.dsh', qbankFile: '', defaultCwd: '', dataSource: 'dsh',
-      memoryEvidence: '', speedEvidence: ''
+      memoryEvidence: '', speedEvidence: '', consistencyEvidence: ''
     },
     roots: { extraWriteRoots: [] }
   };

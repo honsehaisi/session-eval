@@ -1,7 +1,7 @@
 {
   "name": "fish-eval",
   "productName": "大肥鱼测评",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "大肥鱼系统自测评 · 桌面版",
   "main": "main.js",
   "private": true,

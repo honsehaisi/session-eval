@@ -124,6 +124,7 @@ const TPL = `
     <div class="field"><label>记忆题库文件 qbankFile（可空）</label><input id="f-qbank"></div>
     <div class="field"><label>记忆证据文件 memoryEvidence（可空 = 未覆盖）</label><input id="f-mem-ev"></div>
     <div class="field"><label>速度证据文件 speedEvidence（可空 = 用现算）</label><input id="f-speed-ev"></div>
+    <div class="field"><label>一致性证据文件 consistencyEvidence（可空 = 未覆盖）</label><input id="f-con-ev"></div>
     <div class="field"><label>额外可写根（每行一个）</label><textarea id="f-roots"></textarea></div>
     <div class="actions">
       <button class="ghost" id="btn-open-runtime">打开数据目录</button>
@@ -222,6 +223,7 @@ function boot() {
     $('f-qbank').value = p.qbankFile || '';
     $('f-mem-ev').value = p.memoryEvidence || '';
     $('f-speed-ev').value = p.speedEvidence || '';
+    $('f-con-ev').value = p.consistencyEvidence || '';
     $('f-roots').value = ((cfg.roots && cfg.roots.extraWriteRoots) || []).join('\n');
     modal.classList.remove('hidden');
   });
@@ -234,7 +236,8 @@ function boot() {
         defaultCwd: $('f-cwd').value.trim(),
         qbankFile: $('f-qbank').value.trim(),
         memoryEvidence: $('f-mem-ev').value.trim(),
-        speedEvidence: $('f-speed-ev').value.trim()
+        speedEvidence: $('f-speed-ev').value.trim(),
+        consistencyEvidence: $('f-con-ev').value.trim()
       },
       roots: {
         extraWriteRoots: $('f-roots').value.split('\n').map((s) => s.trim()).filter(Boolean)

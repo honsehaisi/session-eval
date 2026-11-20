@@ -113,9 +113,9 @@ node scripts/build-report.js                   # 生成 report/report.html
 - **交付**：有产物动作（`productTools`）的会话比例。
 - **安全**：按 `rules/safety.json` 规则表命中；**generic 下只覆盖 33 条通用规则，dsh 类 14 条天然 0 命中——报告给 A 不代表安全**。
 - **诚实**：否定句/未验证声明的宽判（claims 样本）。
-- **记忆 / 一致性**：当前未覆盖（等 2026-11-19 开放），不参与综合分。
+- **记忆 / 一致性**：默认「未覆盖」——这两维要「自己的题库 + 作答」才出分，流程见下面两小节；填了证据才参与综合分（不填不按 0 分罚）。
 
-### 记忆维度怎么测（等开放后）
+### 记忆维度怎么测（用自己的库）
 
 记忆测的是「你记不记得自己的记忆库」，所以题库**必须从你自己的库生成**，不能用别人给的题：
 
@@ -131,9 +131,33 @@ node src/memory/score.js               # M1/M2/M3 → 维度分
 
 题库抽不满（页面太少）就让它空着标「未覆盖」，**不要拿别人的题凑数**。
 
+### 一致性维度怎么测（同一批题问两次）
+
+思路：同一套题、同一份模板，隔开一段时间问两次，看两次回答的结论是否一致。
+
+```bash
+node src/consistency/snapshot.js --tag t0b      # 记一份记忆库快照
+node src/consistency/ask.js      --tag t0b      # 生成提问单 t0b-plan.json
+# 按提问单作答（子代理/人工都行；只喂题面、cwd 干净），汇总成 answers-t0b.json：
+#   [{ "id": "R1-001", "type": "R1", "prompt": "…", "answer": "…", "verdict": "hit" }]
+# verdict 一律写 "hit"（表示「有作答」），不要按对错填 —— 一致性只比 answer
+
+# 隔 ≥1 天，用同一份计划再问一遍
+node src/consistency/ask.js      --tag t1 --from-plan t0b-plan.json
+# 作答 → answers-t1.json（同样 verdict: "hit"）
+
+node src/consistency/judge.js --base answers-t0b.json --target answers-t1.json --out judge-t1.json
+node src/consistency/score.js --in judge-t1.json --out report-t1.json
+# 最后把 report-t1.json 填到 config.paths.consistencyEvidence
+```
+
+- 模板让答题者去查「它自己的记忆库」；没有记忆库就两次都答「不知道」，会被判 same（一致率虚高），
+  所以这一维**只对有记忆库的 agent 有意义**。
+- 判分 `same` 率 ≥ 95% 记 A、≥85% B、≥75% C、≥60% D（阈值在 `src/score/collect.js`，可改）。
+
 ## 8. 已知限制
 
-1. 记忆、一致性显示「未覆盖」，不是 0 分。
+1. 记忆、一致性默认显示「未覆盖」，不是 0 分；按第 7 节自己造题/作答后，把结果填进 `memoryEvidence` / `consistencyEvidence` 才有分（桌面版设置页有这三格）。
 2. generic 的安全覆盖面有限，见第 7 节。
 3. 程序未签名，SmartScreen 首次会拦（点「更多信息 → 仍要运行」）。
 4. 必须放在**可写目录**运行；不要放 Program Files。

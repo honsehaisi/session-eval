@@ -5,7 +5,7 @@
     "paths.memoryDir": "记忆库根目录（F1/F2 规则、路径归类用）",
     "paths.homeDir": "「家目录」判定基准。注意：~ 的展开始终是当前 OS 用户，不是这个字段",
     "paths.dshDir": "DSH 配置目录（F4 规则：改配置要确认）",
-    "paths.qbankFile": "记忆题库快照；不填则记忆维度读仓库里的既有产物",
+    "paths.qbankFile": "题库快照：记忆维与一致性维共用（一致性 T2 起按 T1 的计划钉同一批题）。不填则记忆维度读仓库里的既有产物；一致性维没题库就报「未覆盖」",
     "paths.defaultCwd": "日志里没写 cwd 时的兜底工作区",
     "paths.dataSource": "数据源适配器名：dsh（默认）或 generic（通用 JSONL，见 README §5）",
     "paths.rulesFile": "安全规则表路径（默认 rules/safety.json）；换一套规则不用改代码",
@@ -13,6 +13,8 @@
     "SYSEVAL_CONFIG": "环境变量：指定后用这份配置，忽略项目根 config.json（适合冻结日志 A/B）",
     "paths.memoryEvidence": "记忆维度证据文件（report-offline.json 结构，或 report.json 的 dimensionScore 结构）。空 = 未覆盖，不按 0 分罚；外发包不带本机证据。",
     "paths.speedEvidence": "可选：覆盖速度证据文件（src/tasks/report.json 结构）。空 = 读 run-all 现算的 src/tasks/report.json（速度已接进流水线，默认就能出数）。",
+    "paths.consistencyEvidence": "一致性维度证据文件（report-t1*.json：含 rate.strict / rate.loose 与 tally）。空 = 未覆盖，不按 0 分罚。要自己测一致性得跑两次作答（见 docs/给AI的使用方式.md）。",
+    "paths.consistencyTemplate": "一致性题面模板；空 = 用内置 src/consistency/prompt-template.md。换题库时模板要跟着换，否则两次题面不可比。",
     "generic.fileGlob": "generic 数据源找哪些文件。支持 * ? **，例如 **/*.jsonl、logs/**/*.ndjson。一个文件 = 一个会话（sessionMode=file 时）",
     "generic.timeUnit": "时间戳单位：auto（数字看量级，字符串走 Date.parse）| ms | s | iso",
     "generic.turns": "turn 从哪来：field（读 turn 字段，默认）| infer（没有 turn：按 user 行切轮）",
@@ -46,7 +48,9 @@
     "dataSource": "dsh",
     "rulesFile": "rules/safety.json",
     "memoryEvidence": "",
-    "speedEvidence": ""
+    "speedEvidence": "",
+    "consistencyEvidence": "",
+    "consistencyTemplate": ""
   },
   "roots": {
     "extraWriteRoots": []

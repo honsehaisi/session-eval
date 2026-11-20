@@ -3,6 +3,10 @@
 //   node judge.js                                              # answers-t0b.json ↔ answers-t1.json
 //   node judge.js --base a.json --target b.json --out j.json   # 换配对
 // 纯函数在 lib.js；本文件只做读写
+//
+// 注意：answers 里的 `verdict` 统一记 `hit`（表示「有作答」），一致性只由 `answer` 决定。
+// 不要拿 autoVerdict 去填——那是记忆维「答对没」的口径，会把换说法的正确作答短路成 diff
+// （2026-11-20 独立验证时踩过：20 条里 8 条假红就是这个原因）。
 const fs = require('node:fs');
 const path = require('node:path');
 const { classify } = require('./lib.js');
